@@ -1,0 +1,444 @@
+{
+  "name": "Eidos",
+  "scopeName": "source.eidos",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#chars" },
+    { "include": "#numbers" },
+    { "include": "#attributes" },
+    { "include": "#declarations" },
+    { "include": "#members" },
+    { "include": "#qualified" },
+    { "include": "#patterns" },
+    { "include": "#calls" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#punctuation" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.eidos",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "comment.line.double-slash.eidos",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.raw.eidos",
+          "begin": "r\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.eidos",
+              "match": "\"\""
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.format.eidos",
+          "begin": "f\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.eidos",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.eidos",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.eidos",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "chars": {
+      "patterns": [
+        {
+          "name": "string.quoted.single.eidos",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.eidos",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.eidos",
+          "match": "\\b0[xX][0-9a-fA-F_]+\\b"
+        },
+        {
+          "name": "constant.numeric.eidos",
+          "match": "\\b0[bB][01_]+\\b"
+        },
+        {
+          "name": "constant.numeric.eidos",
+          "match": "\\b\\d[\\d_]*(?:\\.\\d[\\d_]*)?(?:[eE][+-]?\\d[\\d_]*)?[uUlLsSfFdDbB]?\\b"
+        }
+      ]
+    },
+    "attributes": {
+      "patterns": [
+        {
+          "name": "keyword.control.annotation.eidos",
+          "match": "@(?:derive|impl|ffi|borrow|operator|cstruct|proof_unfold|internal|transparent)\\b"
+        },
+        {
+          "name": "entity.other.attribute-name.eidos",
+          "match": "@[A-Za-z_][A-Za-z0-9_]*"
+        }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "name": "meta.module.definition.name-first.eidos",
+          "match": "\\b([A-Z][A-Za-z0-9_]*(?:\\.[A-Z][A-Za-z0-9_]*)*)\\s*(::)\\s*(module)\\b",
+          "captures": {
+            "1": { "name": "entity.name.module.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "keyword.control.module.eidos" }
+          }
+        },
+        {
+          "name": "meta.type.definition.name-first.eidos",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)(?:\\s*\\[[^\\]\\n]*\\])?\\s*(::)\\s*(type)\\b",
+          "captures": {
+            "1": { "name": "entity.name.type.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "storage.type.eidos" }
+          }
+        },
+        {
+          "name": "meta.trait.definition.name-first.eidos",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)(?:\\s*\\[[^\\]\\n]*\\])?\\s*(::)\\s*(trait)\\b",
+          "captures": {
+            "1": { "name": "entity.name.type.trait.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "storage.type.trait.eidos" }
+          }
+        },
+        {
+          "name": "meta.effect.definition.name-first.eidos",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)(?:\\s*\\[[^\\]\\n]*\\])?\\s*(::)\\s*(effect)\\b",
+          "captures": {
+            "1": { "name": "entity.name.type.effect.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "storage.type.effect.eidos" }
+          }
+        },
+        {
+          "name": "meta.instance.definition.name-first.eidos",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)(?:\\s*\\[[^\\]\\n]*\\])?\\s*(::)\\s*(instance)\\b",
+          "captures": {
+            "1": { "name": "entity.name.type.instance.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "storage.type.instance.eidos" }
+          }
+        },
+        {
+          "name": "meta.import.binding.name-first.eidos",
+          "match": "\\b([A-Z][A-Za-z0-9_]*)\\s*(::)\\s*(import)\\b",
+          "captures": {
+            "1": { "name": "entity.name.module.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "keyword.control.import.eidos" }
+          }
+        },
+        {
+          "name": "meta.comptime.definition.name-first.eidos",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(::)\\s*(comptime)\\b",
+          "captures": {
+            "1": { "name": "entity.name.variable.comptime.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" },
+            "3": { "name": "storage.modifier.comptime.eidos" }
+          }
+        },
+        {
+          "name": "meta.function.definition.name-first.eidos",
+          "match": "\\b([a-z_][A-Za-z0-9_]*)(?:\\s*\\[[^\\]\\n]*\\])?\\s*(::)(?=\\s*(?:comptime\\s+)?(?:[A-Z_(]|[A-Za-z_][A-Za-z0-9_]*\\s*->))",
+          "captures": {
+            "1": { "name": "entity.name.function.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" }
+          }
+        },
+        {
+          "name": "meta.value.definition.name-first.eidos",
+          "match": "\\b([a-z_][A-Za-z0-9_]*)\\s*(::)(?=\\s*[^:;\\n]+(?:=|;))",
+          "captures": {
+            "1": { "name": "entity.name.variable.eidos" },
+            "2": { "name": "keyword.operator.declaration.eidos" }
+          }
+        },
+        {
+          "name": "meta.function.definition.eidos",
+          "match": "\\b(func|fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.function.eidos" },
+            "2": { "name": "entity.name.function.eidos" }
+          }
+        },
+        {
+          "name": "meta.proof.definition.eidos",
+          "match": "\\b(proof)\\s+([A-Z][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.proof.eidos" },
+            "2": { "name": "entity.name.function.proof.eidos" }
+          }
+        },
+        {
+          "name": "meta.type.definition.eidos",
+          "match": "\\b(type)\\s+([A-Z][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.eidos" },
+            "2": { "name": "entity.name.type.eidos" }
+          }
+        },
+        {
+          "name": "meta.trait.definition.eidos",
+          "match": "\\b(trait)\\s+([A-Z][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.trait.eidos" },
+            "2": { "name": "entity.name.type.trait.eidos" }
+          }
+        },
+        {
+          "name": "meta.value.definition.eidos",
+          "match": "\\b(let\\??)(?:\\s+mut)?\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.variable.eidos" },
+            "2": { "name": "entity.name.variable.eidos" }
+          }
+        },
+        {
+          "name": "meta.module.definition.eidos",
+          "match": "\\b(import)\\s+([A-Za-z_][A-Za-z0-9_]*)::([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)",
+          "captures": {
+            "1": { "name": "keyword.control.import.eidos" },
+            "2": { "name": "entity.name.package.eidos" },
+            "3": { "name": "entity.name.module.eidos" }
+          }
+        },
+        {
+          "name": "meta.module.definition.eidos",
+          "match": "\\b(import)\\s+([A-Za-z_][A-Za-z0-9_]*)::([A-Za-z_][A-Za-z0-9_]*(?:/[A-Za-z_][A-Za-z0-9_]*)*)",
+          "captures": {
+            "1": { "name": "keyword.control.import.eidos" },
+            "2": { "name": "entity.name.package.eidos" },
+            "3": { "name": "entity.name.module.eidos" }
+          }
+        },
+        {
+          "name": "meta.module.definition.eidos",
+          "match": "\\b(module|import|export)\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)",
+          "captures": {
+            "1": { "name": "keyword.control.import.eidos" },
+            "2": { "name": "entity.name.module.eidos" }
+          }
+        },
+        {
+          "name": "meta.module.definition.eidos",
+          "match": "\\b(module|import|export)\\s+([A-Za-z_][A-Za-z0-9_]*(?:/[A-Za-z_][A-Za-z0-9_]*)*)",
+          "captures": {
+            "1": { "name": "keyword.control.import.eidos" },
+            "2": { "name": "entity.name.module.eidos" }
+          }
+        }
+      ]
+    },
+    "members": {
+      "patterns": [
+        {
+          "name": "meta.record.field-label.eidos",
+          "match": "([\\{,])\\s*([A-Za-z_][A-Za-z0-9_]*)(?=\\s*:(?!:))",
+          "captures": {
+            "1": { "name": "punctuation.definition.record.eidos" },
+            "2": { "name": "variable.other.member.field.eidos" }
+          }
+        },
+        {
+          "name": "meta.record.field-label.eidos",
+          "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*)(?=\\s*:(?!:))",
+          "captures": {
+            "1": { "name": "variable.other.member.field.eidos" }
+          }
+        },
+        {
+          "name": "entity.name.function.call.eidos",
+          "match": "(?<=\\.)[a-z_][A-Za-z0-9_]*(?=\\s*\\()"
+        },
+        {
+          "name": "variable.other.member.access.eidos",
+          "match": "(?<=\\.)[A-Za-z_][A-Za-z0-9_]*\\b"
+        }
+      ]
+    },
+    "qualified": {
+      "patterns": [
+        {
+          "name": "entity.name.package.eidos",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=::[A-Za-z_][A-Za-z0-9_]*(?:/[A-Za-z_][A-Za-z0-9_]*)*::)"
+        },
+        {
+          "name": "entity.name.module.eidos",
+          "match": "(?<=::)[A-Za-z_][A-Za-z0-9_]*(?=(?:/[A-Za-z_][A-Za-z0-9_]*)*::)"
+        },
+        {
+          "name": "entity.name.module.eidos",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=(?:\\.[A-Za-z_][A-Za-z0-9_]*)+::)"
+        },
+        {
+          "name": "entity.name.module.eidos",
+          "match": "(?<=\\.)[A-Za-z_][A-Za-z0-9_]*(?=(?:\\.[A-Za-z_][A-Za-z0-9_]*)*::)"
+        },
+        {
+          "name": "entity.name.module.eidos",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=(?:/[A-Za-z_][A-Za-z0-9_]*)+::)"
+        },
+        {
+          "name": "entity.name.module.eidos",
+          "match": "(?<=/)[A-Za-z_][A-Za-z0-9_]*(?=(?:/[A-Za-z_][A-Za-z0-9_]*)*::)"
+        },
+        {
+          "name": "entity.name.module.eidos",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=::)"
+        },
+        {
+          "name": "entity.name.function.call.eidos",
+          "match": "(?<=::)[a-z_][A-Za-z0-9_]*(?=\\s*\\()"
+        },
+        {
+          "name": "entity.name.type.eidos",
+          "match": "(?<=::)[A-Z][A-Za-z0-9_]*\\b"
+        }
+      ]
+    },
+    "calls": {
+      "patterns": [
+        {
+          "name": "entity.name.function.call.eidos",
+          "match": "\\b[a-z_][A-Za-z0-9_]*(?=\\s*\\()"
+        },
+        {
+          "name": "entity.name.type.constructor.eidos",
+          "match": "\\b[A-Z][A-Za-z0-9_]*(?=\\s*(?:\\{|\\())"
+        },
+        {
+          "name": "support.function.qualified.eidos",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?:/[A-Za-z_][A-Za-z0-9_]*)*(?=(?:::[A-Za-z_][A-Za-z0-9_]*)+\\s*\\()"
+        }
+      ]
+    },
+    "patterns": {
+      "patterns": [
+        {
+          "name": "meta.pattern.view.eidos",
+          "begin": "\\((?=(?:[^()\\n]|\\([^()\\n]*\\))*->(?:[^()\\n]|\\([^()\\n]*\\))*\\))",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.pattern.view.begin.eidos" }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.pattern.view.end.eidos" }
+          },
+          "patterns": [
+            { "include": "#comments" },
+            { "include": "#strings" },
+            { "include": "#chars" },
+            { "include": "#numbers" },
+            { "include": "#members" },
+            { "include": "#qualified" },
+            { "include": "#calls" },
+            { "include": "#keywords" },
+            { "include": "#types" },
+            {
+              "name": "keyword.operator.view.eidos",
+              "match": "->"
+            },
+            { "include": "#operators" },
+            { "include": "#punctuation" }
+          ]
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.eidos",
+          "match": "\\b(func|fn|let|mut|effect|effects|trait|instance|given|comptime|type|proof|forall|True|False|refl|trivial|intro|constructor|congr|ext|first|second|left|right|contradiction|exists|and|or|not|iff|rewrite|simp|todo_proof|apply|exact|symm|trans|have|calc|at|by|cases|induction|module|import|export|requires|need|where|if|then|else|decide|while|match|when|return|unreachable|loop|break|continue|as|ref|mref|link|internal)\\b"
+        },
+        {
+          "name": "constant.language.boolean.eidos",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.kind.eidos",
+          "match": "\\bkind[1-9][0-9]*\\b"
+        },
+        {
+          "name": "support.type.eidos",
+          "match": "\\b(Self|Int|Float|String|Text|Bool|Char|Unit|Never|Seq|List|Array|Option|Result|Ref|MRef|CInt|CLong|CUInt|I8|I16|I32|I64|U8|U16|U32|U64|F32|F64|Bool8|RawPtr|CPtr|MutCPtr|CStr|Cfn|CFn)\\b"
+        },
+        {
+          "name": "entity.name.type.eidos",
+          "match": "\\b[A-Z][A-Za-z0-9_]*(?:/[A-Z][A-Za-z0-9_]*)*(::[A-Z][A-Za-z0-9_]*)*\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.eidos",
+          "match": "(>>>|<<<|>>=|\\?\\?|<\\$>|<\\*>|->|=>|:=|<>|<=|>=|<-|::|\\+:|:\\+|\\.\\{|\\.\\.|\\+\\+|==|!=|&&|\\|\\||\\|>|[+\\-*/%]=?|=|!|<|>|\\?|[-!$%&*+/<=>?^|~:]*[?$^~|][-!$%&*+/<=>?^|~:]*)"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.comma.eidos",
+          "match": ","
+        },
+        {
+          "name": "punctuation.separator.semicolon.eidos",
+          "match": ";"
+        },
+        {
+          "name": "punctuation.accessor.dot.eidos",
+          "match": "\\."
+        },
+        {
+          "name": "punctuation.bracket.eidos",
+          "match": "[\\[\\]{}()]"
+        }
+      ]
+    }
+  },
+  "uuid": "4d4b30e1-9f8f-4a77-8a4b-66eb248c9f15"
+}

@@ -1,0 +1,12 @@
+.git/**
+.github/**
+.gitignore
+CONTRIBUTING.md
+SECURITY.md
+node_modules/**
+test/**
+changelogs/**
+tmp/**
+*.vsix
+*.log
+README.dev.md

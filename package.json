@@ -1,0 +1,373 @@
+{
+  "name": "eidosc-tools",
+  "displayName": "Eidosc Tools",
+  "description": "Language support with semantic diagnostics, completion, definitions, references, and hover for Eidos.",
+  "version": "0.4.0-alpha.1",
+  "publisher": "rdququ",
+  "author": "rdququ",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dlqw/vscode-eidosc.git"
+  },
+  "homepage": "https://github.com/dlqw/vscode-eidosc#readme",
+  "bugs": {
+    "url": "https://github.com/dlqw/vscode-eidosc/issues"
+  },
+  "keywords": [
+    "eidos",
+    "language",
+    "lsp",
+    "compiler"
+  ],
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Themes"
+  ],
+  "activationEvents": [
+    "onLanguage:eidos",
+    "onLanguage:eidos-manifest",
+    "onCommand:eidosc.analyzeCurrentFile",
+    "onCommand:eidosc.formatDocument",
+    "onCommand:eidosc.buildProject",
+    "onCommand:eidosc.runProject",
+    "onCommand:eidosc.pkgInstall",
+    "onCommand:eidosc.pkgList",
+    "onCommand:eidosc.pkgTree",
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "eidos",
+        "aliases": [
+          "Eidos",
+          "eidos"
+        ],
+        "extensions": [
+          ".eidos"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "eidos-manifest",
+        "aliases": [
+          "Eidos Manifest",
+          "eidos manifest"
+        ],
+        "filenames": [
+          "eidos.toml"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "eidos",
+        "scopeName": "source.eidos",
+        "path": "./syntaxes/eidos.tmLanguage.json"
+      },
+      {
+        "language": "eidos-manifest",
+        "scopeName": "source.eidos-manifest",
+        "path": "./syntaxes/eidos-manifest.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "Eidos Axiom Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/eidos-axiom-dark-color-theme.json"
+      },
+      {
+        "label": "Eidos Proof Light",
+        "uiTheme": "vs",
+        "path": "./themes/eidos-proof-light-color-theme.json"
+      },
+      {
+        "label": "Eidos Contrast Dark",
+        "uiTheme": "hc-black",
+        "path": "./themes/eidos-contrast-dark-color-theme.json"
+      }
+    ],
+    "semanticTokenTypes": [
+      {
+        "id": "module",
+        "description": "Eidos module path segment."
+      },
+      {
+        "id": "fieldLabel",
+        "superType": "property",
+        "description": "Eidos record field label before a colon."
+      },
+      {
+        "id": "patternVariable",
+        "superType": "variable",
+        "description": "Eidos pattern binding variable."
+      },
+      {
+        "id": "proof",
+        "superType": "function",
+        "description": "Eidos proof declaration or proof reference."
+      },
+      {
+        "id": "effectTag",
+        "superType": "type",
+        "description": "Eidos nominal effect tag."
+      },
+      {
+        "id": "constructor",
+        "superType": "function",
+        "description": "Eidos ADT constructor."
+      }
+    ],
+    "semanticTokenModifiers": [
+      {
+        "id": "builtin",
+        "description": "Builtin Eidos symbol."
+      },
+      {
+        "id": "mutable",
+        "description": "Mutable Eidos binding."
+      },
+      {
+        "id": "effect",
+        "description": "Effect constraint occurrence."
+      },
+      {
+        "id": "unused",
+        "description": "Unused local declaration."
+      },
+      {
+        "id": "borrowed",
+        "description": "Shared borrowed binding mode."
+      },
+      {
+        "id": "mutableBorrow",
+        "description": "Mutable borrowed binding mode."
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "language": "eidos",
+        "scopes": {
+          "module": [
+            "entity.name.module.eidos"
+          ],
+          "fieldLabel": [
+            "variable.other.member.field.eidos",
+            "variable.other.property.eidos"
+          ],
+          "patternVariable": [
+            "variable.other.pattern.eidos",
+            "variable.parameter.eidos"
+          ],
+          "proof": [
+            "entity.name.function.proof.eidos",
+            "entity.name.function.eidos"
+          ],
+          "effectTag": [
+            "entity.name.type.effect.eidos",
+            "support.type.eidos"
+          ],
+          "constructor": [
+            "entity.name.type.constructor.eidos",
+            "entity.name.type.eidos",
+            "support.type.eidos"
+          ],
+          "parameter": [
+            "variable.parameter.eidos",
+            "variable.parameter"
+          ],
+          "variable": [
+            "variable.other.eidos",
+            "variable.other"
+          ]
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "eidosc.analyzeCurrentFile",
+        "title": "Eidosc: Analyze Current File"
+      },
+      {
+        "command": "eidosc.formatDocument",
+        "title": "Eidosc: Format Document"
+      },
+      {
+        "command": "eidosc.buildProject",
+        "title": "Eidosc: Build Project"
+      },
+      {
+        "command": "eidosc.runProject",
+        "title": "Eidosc: Run Project"
+      },
+      {
+        "command": "eidosc.pkgInstall",
+        "title": "Eidosc: Package Install"
+      },
+      {
+        "command": "eidosc.pkgList",
+        "title": "Eidosc: Package List"
+      },
+      {
+        "command": "eidosc.pkgTree",
+        "title": "Eidosc: Package Tree"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Eidosc",
+      "properties": {
+        "eidosc.cliMode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "dotnet",
+            "native"
+          ],
+          "default": "auto",
+          "description": "How to run eidosc. auto: native/bundled first then dotnet project fallback. dotnet: dotnet run --project <project>. native: run binary directly."
+        },
+        "eidosc.cliPath": {
+          "type": "string",
+          "default": "eidosc",
+          "description": "Executable path for native eidosc in auto/native mode."
+        },
+        "eidosc.dotnetPath": {
+          "type": "string",
+          "default": "dotnet",
+          "description": "Executable path for dotnet in dotnet mode or auto fallback."
+        },
+        "eidosc.dotnetProject": {
+          "type": "string",
+          "default": "Eidosc/src/Eidosc.Cli",
+          "description": "Fallback project path used in dotnet mode (or auto fallback). Relative to workspace root or absolute."
+        },
+        "eidosc.dotnetNoBuild": {
+          "type": "boolean",
+          "default": true,
+          "description": "When cliMode=dotnet, append --no-build to improve responsiveness."
+        },
+        "eidosc.phase": {
+          "type": "string",
+          "default": "borrow",
+          "description": "Analyze phase passed to eidosc."
+        },
+        "eidosc.extraArgs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional CLI arguments appended to analyze command."
+        },
+        "eidosc.semanticEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable semantic diagnostics and language intelligence providers."
+        },
+        "eidosc.semanticBackend": {
+          "type": "string",
+          "enum": [
+            "ide",
+            "lsp"
+          ],
+          "default": "lsp",
+          "description": "Backend used for semantic diagnostics and language intelligence providers. ide uses per-refresh snapshots. lsp uses a long-lived eidosc lsp process."
+        },
+        "eidosc.semanticHighlighting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable semantic token highlighting for resolved functions, values, fields, types, traits, abilities, constructors, and effects."
+        },
+        "eidosc.inlayHints.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Eidos inlay hints."
+        },
+        "eidosc.inlayHints.variableTypes": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show inferred type hints for let/let mut declarations without explicit type annotations."
+        },
+        "eidosc.semanticDebounceMs": {
+          "type": "number",
+          "default": 180,
+          "minimum": 50,
+          "description": "Debounce delay for semantic refresh after edits."
+        },
+        "eidosc.locale": {
+          "type": "string",
+          "enum": [
+            "zh-CN",
+            "en"
+          ],
+          "default": "zh-CN",
+          "description": "Language used by extension-side diagnostics and hover/completion text."
+        },
+        "eidosc.semanticPhase": {
+          "type": "string",
+          "default": "types",
+          "description": "Compiler phase used by semantic snapshot command (e.g. namer, types, borrow)."
+        },
+        "eidosc.semanticExtraArgs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional CLI arguments appended to ide semantic command."
+        },
+        "eidosc.package.targetName": {
+          "type": "string",
+          "default": "",
+          "description": "Optional eidos.toml target name used by Build Project and Run Project."
+        },
+        "eidosc.run.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Program arguments passed by Eidosc: Run Project."
+        },
+        "eidosc.format.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Eidos document formatting provider."
+        },
+        "eidosc.format.indentSize": {
+          "type": "number",
+          "default": 4,
+          "minimum": 1,
+          "description": "Indent size passed to eidosc fmt."
+        },
+        "eidosc.format.maxLineLength": {
+          "type": "number",
+          "default": 100,
+          "minimum": 40,
+          "description": "Maximum line length passed to eidosc fmt."
+        },
+        "eidosc.format.finalNewline": {
+          "type": "boolean",
+          "default": true,
+          "description": "Append a final newline when formatting."
+        },
+        "eidosc.format.validateSyntax": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate syntax before formatting."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node ./test/editor-contract.test.js",
+    "package": "npx @vscode/vsce package"
+  }
+}

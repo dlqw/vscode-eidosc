@@ -1,0 +1,73 @@
+{
+  "scopeName": "source.eidos-manifest",
+  "name": "Eidos Manifest",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#tables" },
+    { "include": "#keys" },
+    { "include": "#strings" },
+    { "include": "#booleans" },
+    { "include": "#numbers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.eidos-manifest",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "tables": {
+      "patterns": [
+        {
+          "name": "entity.name.section.array.eidos-manifest",
+          "match": "^\\s*(\\[\\[targets\\]\\])\\s*$"
+        },
+        {
+          "name": "entity.name.section.eidos-manifest",
+          "match": "^\\s*(\\[(?:package|language|dependencies|ffi|ffi\\.platform)\\])\\s*$"
+        }
+      ]
+    },
+    "keys": {
+      "patterns": [
+        {
+          "name": "meta.key-value.eidos-manifest",
+          "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(=)"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.eidos-manifest",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.eidos-manifest",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "booleans": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.eidos-manifest",
+          "match": "\\b(?:true|false)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.integer.eidos-manifest",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    }
+  }
+}
