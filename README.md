@@ -8,6 +8,8 @@ Language support for Eidos source files and `eidos.toml` projects.
 - Live compiler diagnostics.
 - Completion, hover, go to definition, find references, semantic tokens, and
   inlay hints through the Eidosc language service.
+- Eidos 0.5 value-level const generics such as `comptime N: Int`, with a
+  TextMate fallback for parameter highlighting and compiler-owned semantic domains.
 - Document formatting through `eidosc fmt`.
 - Project build and run commands.
 - Package install, list, and dependency-tree commands.
@@ -72,6 +74,8 @@ security issues according to [SECURITY.md](SECURITY.md).
 本插件为 `.eidos` 和 `eidos.toml` 提供语法高亮、编译器诊断、补全、悬停、
 定义与引用、语义着色、内联提示、格式化、项目构建运行和包管理命令。请安装
 兼容版本的 `eidosc`，或通过 `eidosc.dotnetProject` 指向本地 Eidosc 源码项目。
+Eidos 0.5 的 `comptime N: Int` 值级 const generic 由 TextMate 提供词法回退，
+精确的 type/value/effect-row 参数域由 Eidosc LSP 语义输出负责。
 
 ## License
 
