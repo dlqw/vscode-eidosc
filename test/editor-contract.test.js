@@ -7,12 +7,12 @@ const compatibility = JSON.parse(fs.readFileSync(path.join(root, "compatibility.
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 assert.strictEqual(compatibility.version, manifest.version, "compatibility metadata must match package version");
 assert.deepStrictEqual(compatibility.manifestSchemas, [3]);
-assert.strictEqual(compatibility.language, ">=0.5.0-alpha.1 <0.6.0");
-assert.strictEqual(compatibility.eidosc, ">=0.5.0-alpha.1 <0.6.0");
+assert.strictEqual(compatibility.language, ">=0.6.0-alpha.1 <0.7.0");
+assert.strictEqual(compatibility.eidosc, ">=0.6.0-alpha.1 <0.7.0");
 const grammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos.tmLanguage.json"), "utf8"));
 const manifestGrammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos-manifest.tmLanguage.json"), "utf8"));
-const extension = fs.readFileSync(path.join(root, "out", "extension.js"), "utf8");
-const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+const extension = fs.readFileSync(path.join(root, "out", "extension.js"), "utf8").replace(/\r\n/g, "\n");
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8").replace(/\r\n/g, "\n");
 const themes = manifest.contributes.themes ?? [];
 
 const commands = new Set(manifest.contributes.commands.map((command) => command.command));
@@ -195,13 +195,13 @@ assert(
     pattern.name === "meta.function.definition.name-first.eidos" &&
     pattern.match.includes("::") &&
     pattern.match.includes("comptime")),
-  "grammar should scope 0.5.0-alpha.1 name-first function declarations"
+  "grammar should scope 0.6.0-alpha.1 name-first function declarations"
 );
 assert(
   grammar.repository.declarations.patterns.some((pattern) =>
     pattern.name === "meta.module.definition.name-first.eidos" &&
     JSON.stringify(pattern).includes("entity.name.module.eidos")),
-  "grammar should scope 0.5.0-alpha.1 name-first module declarations"
+  "grammar should scope 0.6.0-alpha.1 name-first module declarations"
 );
 for (const expected of [
   "meta.type.definition.name-first.eidos",
@@ -294,7 +294,7 @@ assert(extension.includes("\"effect\""), "lexical semantic keywords should inclu
 assert(extension.includes("\"instance\""), "lexical semantic keywords should include instance");
 assert(extension.includes("\"given\""), "lexical semantic keywords should include given");
 assert(extension.includes("\"comptime\""), "lexical semantic keywords should include comptime");
-assert(extension.includes('const manifestLanguageVersions = ["0.5.0-alpha.1"]'), "manifest completion should target Eidos 0.5.0-alpha.1");
+assert(extension.includes('const manifestLanguageVersions = ["0.6.0-alpha.1"]'), "manifest completion should target Eidos 0.6.0-alpha.1");
 assert(extension.includes("\"decide\""), "lexical semantic keywords should include decide");
 assert(extension.includes("createStaticEidosCompletions"), "extension should provide static Eidos completions");
 assert(extension.includes("new vscode.SnippetString(\"decide"), "extension should provide decide snippet completion");
@@ -302,8 +302,8 @@ assert(extension.includes("\"??\""), "lexical semantic operators should include 
 assert(extension.includes("\"+:\"") && extension.includes("\":+\""), "lexical semantic operators should include Seq cons operators");
 assert(extension.includes("let\\??)(?:\\s+mut)?"), "inlay hint declaration matching should include let and let?");
 assert(
-  extension.includes("/[A-Za-z_][A-Za-z0-9_]*(?:(?:[/.]|::)[A-Za-z_][A-Za-z0-9_]*)*/"),
-  "qualified word range should include dot-separated module paths"
+  extension.includes("/[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*/"),
+  "qualified word range should use only dot-separated Namespace paths"
 );
 assert(
   extension.includes("const projectRoot = findProjectRoot(filePath);") &&
@@ -322,8 +322,8 @@ assert(
 );
 assert(
   grammar.repository.qualified.patterns.some((pattern) =>
-    pattern.name === "entity.name.module.eidos" && pattern.match.includes("(?=::)")),
-  "grammar should scope qualified path prefixes before ::"
+    pattern.name === "entity.name.package.eidos" && pattern.match.includes("(?=\\.[A-Z]")),
+  "grammar should scope lowercase dependency aliases before uppercase modules"
 );
 assert(
   grammar.repository.declarations.patterns.some((pattern) =>
@@ -331,30 +331,17 @@ assert(
     JSON.stringify(pattern).includes("entity.name.package.eidos") &&
     JSON.stringify(pattern).includes("entity.name.module.eidos") &&
     JSON.stringify(pattern).includes("\\\\.")),
-  "grammar should scope package-qualified dot-separated imports"
-);
-assert(
-  grammar.repository.declarations.patterns.some((pattern) =>
-    JSON.stringify(pattern).includes("\\b(import)") &&
-    JSON.stringify(pattern).includes("entity.name.package.eidos") &&
-    JSON.stringify(pattern).includes("entity.name.module.eidos") &&
-    JSON.stringify(pattern).includes("/")),
-  "grammar should scope package-qualified imports"
+  "grammar should scope dot-qualified dependency imports"
 );
 assert(
   grammar.repository.qualified.patterns.some((pattern) =>
-    pattern.name === "entity.name.module.eidos" && pattern.match.includes("(?:\\.")),
-  "grammar should scope dot-separated module prefixes before ::"
+    pattern.name === "entity.name.module.eidos" && pattern.match.includes("(?=\\.")),
+  "grammar should scope uppercase Namespace prefixes before dot access"
 );
 assert(
-  grammar.repository.qualified.patterns.some((pattern) =>
-    pattern.name === "entity.name.module.eidos" && pattern.match.includes("(?:/")),
-  "grammar should scope slash-separated module prefixes before ::"
-);
-assert(
-  grammar.repository.qualified.patterns.some((pattern) =>
-    pattern.name === "entity.name.module.eidos" && pattern.match.includes("(?<=/)")),
-  "grammar should scope slash-separated module segments independently"
+  grammar.repository.qualified.patterns.every((pattern) =>
+    !pattern.match.includes("::") && !pattern.match.includes("/")),
+  "qualified Namespace highlighting should not retain removed separators"
 );
 assert(
   grammar.repository.operators.patterns.some((pattern) => pattern.match.includes("\\.\\{")),
@@ -432,7 +419,7 @@ for (const expected of [
   "readIdentifierLength",
   "isRecordFieldLabel",
   "previousNonWhitespaceChar",
-  "[A-Za-z_][A-Za-z0-9_]*(?:(?:[/.]|::)[A-Za-z_][A-Za-z0-9_]*)*",
+  "[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*",
   "isSyntheticModulePath",
   "\"module\"",
   "\"fieldLabel\"",
