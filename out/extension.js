@@ -22,7 +22,7 @@ function pathExists(target) {
   }
 }
 
-const manifestLanguageVersions = ["0.5.0-alpha.1"];
+const manifestLanguageVersions = ["0.6.0-alpha.1"];
 const manifestTargetKindValues = ["executable", "exe", "library", "lib"];
 const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitStdlib"]);
 const manifestSectionKeys = new Map([
@@ -118,8 +118,8 @@ const manifestFieldDocs = {
   },
   "language.version": {
     kind: vscode.CompletionItemKind.Property,
-    zh: "Eidos 语言 SemVer。当前值为 `0.5.0-alpha.1`。",
-    en: "Eidos language SemVer. The current value is `0.5.0-alpha.1`."
+    zh: "Eidos 语言 SemVer。当前值为 `0.6.0-alpha.1`。",
+    en: "Eidos language SemVer. The current value is `0.6.0-alpha.1`."
   },
   "targets.name": {
     kind: vscode.CompletionItemKind.Property,
@@ -1955,7 +1955,7 @@ function isCompletionVisible(entry, position, document) {
 function getQualifiedWordRange(document, position) {
   return document.getWordRangeAtPosition(
     position,
-    /[A-Za-z_][A-Za-z0-9_]*(?:(?:[/.]|::)[A-Za-z_][A-Za-z0-9_]*)*/
+    /[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*/
   );
 }
 
@@ -2897,9 +2897,6 @@ function pushLexicalSemanticTokens(builder, document, seen) {
       if (start > 0 && text[start - 1] === "." && /^[a-z_]/.test(word) && nextNonWhitespaceIs(text, i, "(")) {
         pushTokenIfNew(builder, seen, line, startCharacter, word.length, "function", []);
       }
-      if (i + 1 < text.length && text[i] === ":" && text[i + 1] === ":") {
-        pushTokenIfNew(builder, seen, line, startCharacter, word.length, "module", []);
-      }
       if (isRecordFieldLabel(text, start, i)) {
         pushTokenIfNew(builder, seen, line, startCharacter, word.length, "fieldLabel", []);
       }
@@ -2924,6 +2921,7 @@ function pushLexicalSemanticTokens(builder, document, seen) {
 
 function pushQualifiedModulePrefixTokens(builder, seen, text, start, line, character) {
   const segments = [];
+  const segmentStarts = [];
   let cursor = start;
   let cursorCharacter = character;
   const firstLength = readIdentifierLength(text, cursor);
@@ -2932,30 +2930,36 @@ function pushQualifiedModulePrefixTokens(builder, seen, text, start, line, chara
   }
 
   segments.push({ character: cursorCharacter, length: firstLength });
+  segmentStarts.push(cursor);
   cursor += firstLength;
   cursorCharacter += firstLength;
 
-  let sawPathSegment = false;
-  while (cursor < text.length && (text[cursor] === "/" || text[cursor] === ".")) {
+  while (cursor < text.length && text[cursor] === ".") {
     const segmentLength = readIdentifierLength(text, cursor + 1);
     if (segmentLength <= 0) {
       break;
     }
 
-    sawPathSegment = true;
     cursor += 1;
     cursorCharacter += 1;
+    segmentStarts.push(cursor);
     segments.push({ character: cursorCharacter, length: segmentLength });
     cursor += segmentLength;
     cursorCharacter += segmentLength;
   }
 
-  if (!sawPathSegment || text[cursor] !== ":" || text[cursor + 1] !== ":") {
+  if (segments.length < 2 ||
+      !(/[A-Z]/.test(text[segmentStarts[0]])) && !(/[A-Z]/.test(text[segmentStarts[1]]))) {
     return 0;
   }
 
-  for (const segment of segments) {
+  for (const segment of segments.slice(0, -1)) {
     pushTokenIfNew(builder, seen, line, segment.character, segment.length, "module", []);
+  }
+
+  const leaf = segments[segments.length - 1];
+  if (/[a-z_]/.test(text[segmentStarts[segmentStarts.length - 1]]) && nextNonWhitespaceIs(text, cursor, "(")) {
+    pushTokenIfNew(builder, seen, line, leaf.character, leaf.length, "function", []);
   }
 
   return cursor - start;
