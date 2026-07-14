@@ -22,7 +22,7 @@ function pathExists(target) {
   }
 }
 
-const manifestLanguageVersions = ["0.4.0-alpha.1"];
+const manifestLanguageVersions = ["0.5.0-alpha.1"];
 const manifestTargetKindValues = ["executable", "exe", "library", "lib"];
 const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitStdlib"]);
 const manifestSectionKeys = new Map([
@@ -118,8 +118,8 @@ const manifestFieldDocs = {
   },
   "language.version": {
     kind: vscode.CompletionItemKind.Property,
-    zh: "Eidos 语言 SemVer。当前值为 `0.4.0-alpha.1`。",
-    en: "Eidos language SemVer. The current value is `0.4.0-alpha.1`."
+    zh: "Eidos 语言 SemVer。当前值为 `0.5.0-alpha.1`。",
+    en: "Eidos language SemVer. The current value is `0.5.0-alpha.1`."
   },
   "targets.name": {
     kind: vscode.CompletionItemKind.Property,
