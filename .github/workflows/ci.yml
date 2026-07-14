@@ -19,4 +19,7 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
-          test -f "changelogs/$version.md"
+          if [[ -f "changelogs/$version.md" ]]; then
+            exit 0
+          fi
+          test -n "$(find "changelogs/$version" -maxdepth 1 -type f -name "$version-*.md" -print -quit)"
