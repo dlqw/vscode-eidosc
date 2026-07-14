@@ -1392,6 +1392,18 @@ class EidosLspClient {
     return await this.request("textDocument/inlayHint", this.rangeParams(document, range));
   }
 
+  async generatedDocument(uri, sourceDocument) {
+    if ((!this.child || !this.initialized) && sourceDocument) {
+      if (!(await this.start(sourceDocument))) {
+        return null;
+      }
+    }
+    if (!this.child || !this.initialized) {
+      return null;
+    }
+    return await this.request("eidos/generatedDocument", { uri });
+  }
+
   didOpen(document) {
     const key = document.uri.toString();
     this.openDocuments.set(key, document.version);
@@ -3052,6 +3064,42 @@ function activate(context) {
   const semanticFailures = new Set();
   const lspClient = new EidosLspClient(output, diagnostics);
 
+  function findGeneratedDocumentInSnapshots(uri) {
+    for (const state of snapshots.values()) {
+      for (const snapshot of [state?.snapshot, state?.lastGoodSnapshot]) {
+        const generated = (snapshot?.generatedDocuments ?? []).find((document) => document.uri === uri);
+        if (generated?.content) {
+          return generated.content;
+        }
+      }
+    }
+    return null;
+  }
+
+  const generatedDocumentProvider = vscode.workspace.registerTextDocumentContentProvider(
+    "eidos-generated",
+    {
+      provideTextDocumentContent: async (uri) => {
+        const uriText = uri.toString();
+        const sourceDocument = vscode.window.activeTextEditor?.document;
+        try {
+          const generated = await lspClient.generatedDocument(
+            uriText,
+            isEidosSourceDocument(sourceDocument) ? sourceDocument : null
+          );
+          if (generated?.content) {
+            return generated.content;
+          }
+        } catch (error) {
+          output.appendLine(`[eidosc][lsp][generatedDocument] ${error.message}`);
+        }
+
+        return findGeneratedDocumentInSnapshots(uriText) ??
+          `// Generated Eidos declaration is not available in the current semantic snapshot.\n// ${uriText}\n`;
+      }
+    }
+  );
+
   function useLspDiagnostics() {
     const config = vscode.workspace.getConfiguration("eidosc");
     return config.get("semanticEnabled", true) && config.get("semanticBackend", "lsp") === "lsp";
@@ -4005,6 +4053,7 @@ function activate(context) {
     pkgTreeCommand,
     output,
     { dispose: () => lspClient.dispose() },
+    generatedDocumentProvider,
     diagnostics,
     formattingProvider,
     completionProvider,
