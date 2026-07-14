@@ -12,6 +12,7 @@ assert.strictEqual(compatibility.eidosc, ">=0.5.0-alpha.1 <0.6.0");
 const grammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos.tmLanguage.json"), "utf8"));
 const manifestGrammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos-manifest.tmLanguage.json"), "utf8"));
 const extension = fs.readFileSync(path.join(root, "out", "extension.js"), "utf8");
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
 const themes = manifest.contributes.themes ?? [];
 
 const commands = new Set(manifest.contributes.commands.map((command) => command.command));
@@ -102,6 +103,12 @@ assert(
   manifest.contributes.semanticTokenScopes?.[0]?.scopes?.variable?.includes("variable.other.eidos"),
   "variable semantic token should have a TextMate fallback scope"
 );
+assert(
+  extension.includes('registerTextDocumentContentProvider(\n    "eidos-generated"') &&
+    extension.includes('this.request("eidos/generatedDocument", { uri })'),
+  "extension should resolve generated definition URIs through the Eidos LSP virtual document request"
+);
+assert(readme.includes("eidos-generated://") && readme.includes("eidos/generatedDocument"));
 
 assert(themes.length >= 3, "extension should contribute Eidos-focused color themes");
 for (const expected of [
