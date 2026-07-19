@@ -2282,8 +2282,8 @@ function buildBorrowCapabilityMarkdown(snapshot, symbol, locale) {
   const sectionTitle = tr(locale, "borrowCapabilities");
   if (!entry.hasSnapshot) {
     const none = locale === "zh-CN"
-      ? "无已解析的 `@borrow(...)` Effect快照。"
-      : "No resolved `@borrow(...)` capability snapshot.";
+      ? "没有可用的签名 ownership contract 快照。"
+      : "No signature-derived ownership contract snapshot is available.";
     return `\n\n**${sectionTitle}**  \n${none}`;
   }
 
@@ -2455,7 +2455,7 @@ const semanticTokenModifiers = [
 ];
 const lexicalSemanticKeywords = new Set([
   "func", "fn", "let", "mut", "effect", "effects", "trait", "instance", "given", "comptime", "decide", "type", "proof", "forall", "True", "False", "refl", "trivial", "intro", "constructor", "congr", "ext", "first", "second", "left", "right", "contradiction", "exists", "and", "or", "not", "iff", "rewrite", "simp", "todo_proof", "apply", "exact", "symm", "trans", "have", "calc", "at", "by",
-  "cases", "induction", "module", "import", "export", "requires", "need", "if", "then", "else", "while",
+  "cases", "induction", "module", "import", "export", "need", "if", "then", "else", "while",
   "match", "when", "return", "loop", "break", "continue", "as",
   "ref", "mref", "link", "internal", "Self"
 ]);

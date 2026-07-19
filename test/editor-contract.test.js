@@ -264,22 +264,15 @@ assert(JSON.stringify(grammar.repository.types).includes("Seq"), "grammar should
 assert(JSON.stringify(grammar.repository.types).includes("CInt"), "grammar should highlight C ABI integer types");
 assert(JSON.stringify(grammar.repository.types).includes("MutCPtr"), "grammar should highlight mutable C pointer types");
 assert(JSON.stringify(grammar.repository.types).includes("CStr"), "grammar should highlight C string type");
-assert(
-  grammar.repository.attributes.patterns.some((pattern) =>
-    pattern.match.includes("derive") &&
-    pattern.match.includes("impl") &&
-    pattern.match.includes("ffi") &&
-    pattern.match.includes("borrow") &&
-    pattern.match.includes("operator") &&
-    pattern.match.includes("proof_unfold") &&
-    pattern.match.includes("internal") &&
-    pattern.match.includes("transparent")),
-  "grammar should highlight current Eidos attributes"
-);
-assert(
-  grammar.repository.attributes.patterns.some((pattern) => pattern.match.includes("@[A-Za-z_]")),
-  "grammar should highlight generic attributes such as @derive"
-);
+const typedTagRegion = grammar.repository.attributes.patterns.find((pattern) => pattern.begin === "@\\[");
+assert(typedTagRegion, "grammar should recognize @[...] typed declaration tag groups");
+const typedTagPatterns = JSON.stringify(typedTagRegion.patterns);
+for (const tag of ["repr", "derive", "expand", "extern", "proof_unfold", "transparent"]) {
+  assert(typedTagPatterns.includes(tag), `grammar should highlight ${tag} typed declaration tags`);
+}
+for (const removed of ["borrow", "requires", "before", "after"]) {
+  assert(!typedTagPatterns.includes(removed), `grammar should not advertise removed ${removed} tags`);
+}
 assert(
   grammar.repository.operators.patterns.some((pattern) => pattern.match.includes("|[+\\-*/%]=?|=|")),
   "grammar should highlight constructor-associated constant initializer ="

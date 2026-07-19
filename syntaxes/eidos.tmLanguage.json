@@ -102,12 +102,23 @@
     "attributes": {
       "patterns": [
         {
-          "name": "keyword.control.annotation.eidos",
-          "match": "@(?:derive|impl|ffi|borrow|operator|cstruct|proof_unfold|internal|transparent)\\b"
-        },
-        {
-          "name": "entity.other.attribute-name.eidos",
-          "match": "@[A-Za-z_][A-Za-z0-9_]*"
+          "name": "meta.annotation.typed-tags.eidos",
+          "begin": "@\\[",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.annotation.begin.eidos" }
+          },
+          "end": "\\]",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.annotation.end.eidos" }
+          },
+          "patterns": [
+            { "include": "#comments" },
+            { "include": "#strings" },
+            {
+              "name": "keyword.control.annotation.eidos",
+              "match": "\\b(repr|derive|expand|extern|proof_unfold|transparent)\\b"
+            }
+          ]
         }
       ]
     },
@@ -353,7 +364,7 @@
       "patterns": [
         {
           "name": "keyword.control.eidos",
-          "match": "\\b(func|fn|let|mut|effect|effects|trait|instance|given|comptime|type|proof|forall|True|False|refl|trivial|intro|constructor|congr|ext|first|second|left|right|contradiction|exists|and|or|not|iff|rewrite|simp|todo_proof|apply|exact|symm|trans|have|calc|at|by|cases|induction|module|import|export|requires|need|where|if|then|else|decide|while|match|when|return|unreachable|loop|break|continue|as|ref|mref|link|internal)\\b"
+          "match": "\\b(func|fn|let|mut|effect|effects|trait|instance|given|comptime|type|proof|forall|True|False|refl|trivial|intro|constructor|congr|ext|first|second|left|right|contradiction|exists|and|or|not|iff|rewrite|simp|todo_proof|apply|exact|symm|trans|have|calc|at|by|cases|induction|module|import|export|need|where|if|then|else|decide|while|match|when|return|unreachable|loop|break|continue|as|ref|mref|link|internal)\\b"
         },
         {
           "name": "constant.language.boolean.eidos",
