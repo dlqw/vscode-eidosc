@@ -22,7 +22,7 @@ function pathExists(target) {
   }
 }
 
-const manifestLanguageVersions = ["0.6.0-alpha.1"];
+const manifestLanguageVersions = ["0.7.0-alpha.1"];
 const manifestTargetKindValues = ["executable", "exe", "library", "lib"];
 const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitStdlib"]);
 const manifestSectionKeys = new Map([
@@ -118,8 +118,8 @@ const manifestFieldDocs = {
   },
   "language.version": {
     kind: vscode.CompletionItemKind.Property,
-    zh: "Eidos 语言 SemVer。当前值为 `0.6.0-alpha.1`。",
-    en: "Eidos language SemVer. The current value is `0.6.0-alpha.1`."
+    zh: "Eidos 语言 SemVer。当前值为 `0.7.0-alpha.1`。",
+    en: "Eidos language SemVer. The current value is `0.7.0-alpha.1`."
   },
   "targets.name": {
     kind: vscode.CompletionItemKind.Property,
@@ -2121,7 +2121,6 @@ function localizeText(text, locale) {
     [/^Undefined identifier '(.+)'$/, "未定义的标识符 '$1'"],
     [/^Undefined variable '(.+)'$/, "未定义的变量 '$1'"],
     [/^Undefined type '(.+)'$/, "未定义的类型 '$1'"],
-    [/^Undefined trait '(.+)' in @impl$/, "@impl 中未定义 trait '$1'"],
     [/^Undefined trait '(.+)'$/, "未定义的 trait '$1'"],
     [/^Undefined effect '(.+)'$/, "未定义的Effect '$1'"],
     [/^Undefined constructor '(.+)'$/, "未定义的构造器 '$1'"],
