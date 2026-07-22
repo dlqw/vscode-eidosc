@@ -22,7 +22,7 @@ function pathExists(target) {
   }
 }
 
-const manifestLanguageVersions = ["0.6.0-alpha.1"];
+const manifestLanguageVersions = ["0.7.0-alpha.1"];
 const manifestTargetKindValues = ["executable", "exe", "library", "lib"];
 const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitStdlib"]);
 const manifestSectionKeys = new Map([
@@ -118,8 +118,8 @@ const manifestFieldDocs = {
   },
   "language.version": {
     kind: vscode.CompletionItemKind.Property,
-    zh: "Eidos 语言 SemVer。当前值为 `0.6.0-alpha.1`。",
-    en: "Eidos language SemVer. The current value is `0.6.0-alpha.1`."
+    zh: "Eidos 语言 SemVer。当前值为 `0.7.0-alpha.1`。",
+    en: "Eidos language SemVer. The current value is `0.7.0-alpha.1`."
   },
   "targets.name": {
     kind: vscode.CompletionItemKind.Property,
@@ -2121,7 +2121,6 @@ function localizeText(text, locale) {
     [/^Undefined identifier '(.+)'$/, "未定义的标识符 '$1'"],
     [/^Undefined variable '(.+)'$/, "未定义的变量 '$1'"],
     [/^Undefined type '(.+)'$/, "未定义的类型 '$1'"],
-    [/^Undefined trait '(.+)' in @impl$/, "@impl 中未定义 trait '$1'"],
     [/^Undefined trait '(.+)'$/, "未定义的 trait '$1'"],
     [/^Undefined effect '(.+)'$/, "未定义的Effect '$1'"],
     [/^Undefined constructor '(.+)'$/, "未定义的构造器 '$1'"],
@@ -2282,8 +2281,8 @@ function buildBorrowCapabilityMarkdown(snapshot, symbol, locale) {
   const sectionTitle = tr(locale, "borrowCapabilities");
   if (!entry.hasSnapshot) {
     const none = locale === "zh-CN"
-      ? "无已解析的 `@borrow(...)` Effect快照。"
-      : "No resolved `@borrow(...)` capability snapshot.";
+      ? "没有可用的签名 ownership contract 快照。"
+      : "No signature-derived ownership contract snapshot is available.";
     return `\n\n**${sectionTitle}**  \n${none}`;
   }
 
@@ -2455,7 +2454,7 @@ const semanticTokenModifiers = [
 ];
 const lexicalSemanticKeywords = new Set([
   "func", "fn", "let", "mut", "effect", "effects", "trait", "instance", "given", "comptime", "decide", "type", "proof", "forall", "True", "False", "refl", "trivial", "intro", "constructor", "congr", "ext", "first", "second", "left", "right", "contradiction", "exists", "and", "or", "not", "iff", "rewrite", "simp", "todo_proof", "apply", "exact", "symm", "trans", "have", "calc", "at", "by",
-  "cases", "induction", "module", "import", "export", "requires", "need", "if", "then", "else", "while",
+  "cases", "induction", "module", "import", "export", "need", "if", "then", "else", "while",
   "match", "when", "return", "loop", "break", "continue", "as",
   "ref", "mref", "link", "internal", "Self"
 ]);

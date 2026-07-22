@@ -2,7 +2,7 @@
   "name": "eidosc-tools",
   "displayName": "Eidosc Tools",
   "description": "Language support with semantic diagnostics, completion, definitions, references, and hover for Eidos.",
-  "version": "0.6.0-alpha.1",
+  "version": "0.7.0-alpha.1",
   "publisher": "rdququ",
   "author": "rdququ",
   "license": "MIT",

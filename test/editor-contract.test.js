@@ -7,8 +7,8 @@ const compatibility = JSON.parse(fs.readFileSync(path.join(root, "compatibility.
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 assert.strictEqual(compatibility.version, manifest.version, "compatibility metadata must match package version");
 assert.deepStrictEqual(compatibility.manifestSchemas, [3]);
-assert.strictEqual(compatibility.language, ">=0.6.0-alpha.1 <0.7.0");
-assert.strictEqual(compatibility.eidosc, ">=0.6.0-alpha.1 <0.7.0");
+assert.strictEqual(compatibility.language, ">=0.7.0-alpha.1 <0.8.0");
+assert.strictEqual(compatibility.eidosc, ">=0.7.0-alpha.1 <0.8.0");
 const grammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos.tmLanguage.json"), "utf8"));
 const manifestGrammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos-manifest.tmLanguage.json"), "utf8"));
 const extension = fs.readFileSync(path.join(root, "out", "extension.js"), "utf8").replace(/\r\n/g, "\n");
@@ -195,13 +195,13 @@ assert(
     pattern.name === "meta.function.definition.name-first.eidos" &&
     pattern.match.includes("::") &&
     pattern.match.includes("comptime")),
-  "grammar should scope 0.6.0-alpha.1 name-first function declarations"
+  "grammar should scope 0.7.0-alpha.1 name-first function declarations"
 );
 assert(
   grammar.repository.declarations.patterns.some((pattern) =>
     pattern.name === "meta.module.definition.name-first.eidos" &&
     JSON.stringify(pattern).includes("entity.name.module.eidos")),
-  "grammar should scope 0.6.0-alpha.1 name-first module declarations"
+  "grammar should scope 0.7.0-alpha.1 name-first module declarations"
 );
 for (const expected of [
   "meta.type.definition.name-first.eidos",
@@ -264,22 +264,15 @@ assert(JSON.stringify(grammar.repository.types).includes("Seq"), "grammar should
 assert(JSON.stringify(grammar.repository.types).includes("CInt"), "grammar should highlight C ABI integer types");
 assert(JSON.stringify(grammar.repository.types).includes("MutCPtr"), "grammar should highlight mutable C pointer types");
 assert(JSON.stringify(grammar.repository.types).includes("CStr"), "grammar should highlight C string type");
-assert(
-  grammar.repository.attributes.patterns.some((pattern) =>
-    pattern.match.includes("derive") &&
-    pattern.match.includes("impl") &&
-    pattern.match.includes("ffi") &&
-    pattern.match.includes("borrow") &&
-    pattern.match.includes("operator") &&
-    pattern.match.includes("proof_unfold") &&
-    pattern.match.includes("internal") &&
-    pattern.match.includes("transparent")),
-  "grammar should highlight current Eidos attributes"
-);
-assert(
-  grammar.repository.attributes.patterns.some((pattern) => pattern.match.includes("@[A-Za-z_]")),
-  "grammar should highlight generic attributes such as @derive"
-);
+const typedTagRegion = grammar.repository.attributes.patterns.find((pattern) => pattern.begin === "@\\[");
+assert(typedTagRegion, "grammar should recognize @[...] typed declaration tag groups");
+const typedTagPatterns = JSON.stringify(typedTagRegion.patterns);
+for (const tag of ["repr", "derive", "expand", "extern", "proof_unfold", "transparent"]) {
+  assert(typedTagPatterns.includes(tag), `grammar should highlight ${tag} typed declaration tags`);
+}
+for (const removed of ["borrow", "requires", "before", "after"]) {
+  assert(!typedTagPatterns.includes(removed), `grammar should not advertise removed ${removed} tags`);
+}
 assert(
   grammar.repository.operators.patterns.some((pattern) => pattern.match.includes("|[+\\-*/%]=?|=|")),
   "grammar should highlight constructor-associated constant initializer ="
@@ -294,7 +287,7 @@ assert(extension.includes("\"effect\""), "lexical semantic keywords should inclu
 assert(extension.includes("\"instance\""), "lexical semantic keywords should include instance");
 assert(extension.includes("\"given\""), "lexical semantic keywords should include given");
 assert(extension.includes("\"comptime\""), "lexical semantic keywords should include comptime");
-assert(extension.includes('const manifestLanguageVersions = ["0.6.0-alpha.1"]'), "manifest completion should target Eidos 0.6.0-alpha.1");
+assert(extension.includes('const manifestLanguageVersions = ["0.7.0-alpha.1"]'), "manifest completion should target Eidos 0.7.0-alpha.1");
 assert(extension.includes("\"decide\""), "lexical semantic keywords should include decide");
 assert(extension.includes("createStaticEidosCompletions"), "extension should provide static Eidos completions");
 assert(extension.includes("new vscode.SnippetString(\"decide"), "extension should provide decide snippet completion");

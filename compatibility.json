@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "component": "vscode-eidosc",
-  "version": "0.6.0-alpha.1",
-  "language": ">=0.6.0-alpha.1 <0.7.0",
-  "eidosc": ">=0.6.0-alpha.1 <0.7.0",
+  "version": "0.7.0-alpha.1",
+  "language": ">=0.7.0-alpha.1 <0.8.0",
+  "eidosc": ">=0.7.0-alpha.1 <0.8.0",
   "manifestSchemas": [3],
   "ideProtocol": "0.1.0-alpha.1"
 }
