@@ -4,7 +4,7 @@ Language support for Eidos source files and `eidos.toml` projects.
 
 ## Features
 
-- TextMate syntax highlighting for Eidos source and project manifests.
+- TextMate syntax highlighting for Eidos source and project manifests, including `_0`, `_1`, ... payload placeholders in `then` / `else` selection arms.
 - Live compiler diagnostics.
 - Completion, hover, go to definition, find references, semantic tokens, and
   inlay hints through the Eidosc language service.
@@ -78,6 +78,7 @@ security issues according to [SECURITY.md](SECURITY.md).
 Eidos 0.5 的 `comptime N: Int` 值级 const generic 由 TextMate 提供词法回退，
 精确的 type/value/effect-row 参数域由 Eidosc LSP 语义输出负责。用户 derive 生成的声明
 可跳转到稳定的只读 `eidos-generated://` 虚拟文档，内容和 origin 由 Eidosc LSP 提供。
+Eidos 0.8 的 `then` / `else` selection payload 占位符 `_0`、`_1` 等具有 TextMate 词法高亮；其精确类型与作用域由 Eidosc LSP 提供。
 
 ## License
 
