@@ -259,6 +259,10 @@ assert(JSON.stringify(grammar.repository.keywords).includes("instance"), "gramma
 assert(JSON.stringify(grammar.repository.keywords).includes("given"), "grammar should highlight given keyword");
 assert(JSON.stringify(grammar.repository.keywords).includes("comptime"), "grammar should highlight comptime keyword");
 assert(JSON.stringify(grammar.repository.keywords).includes("decide"), "grammar should highlight decide keyword");
+assert(
+  JSON.stringify(grammar.repository.selectionPlaceholders).includes("variable.other.pattern.selection.eidos"),
+  "grammar should highlight then/else payload placeholders"
+);
 assert(JSON.stringify(grammar.repository.types).includes("Self"), "grammar should highlight Self type");
 assert(JSON.stringify(grammar.repository.types).includes("Seq"), "grammar should highlight Seq type");
 assert(JSON.stringify(grammar.repository.types).includes("CInt"), "grammar should highlight C ABI integer types");
