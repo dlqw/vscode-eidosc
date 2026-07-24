@@ -1,6 +1,8 @@
-# Eidosc Tools for VS Code
+# Eidos Language for VS Code
 
-Language support for Eidos source files and `eidos.toml` projects.
+![Eidos owl](images/eidos-owl-512.png)
+
+Official language support for Eidos source files and `eidos.toml` projects.
 
 ## Features
 

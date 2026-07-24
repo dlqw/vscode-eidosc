@@ -26,7 +26,19 @@ jobs:
           test "$declared" = "${{ inputs.version }}"
           test -f "changelogs/$declared.md"
           npm test
-          npx --yes @vscode/vsce package --pre-release -o "eidosc-tools-$declared.vsix"
+          npx --yes @vscode/vsce package --pre-release --changelog-path "changelogs/$declared.md" -o "eidos-language-$declared.vsix"
+      - name: Verify Marketplace publisher access
+        env:
+          VSCE_PAT: "${{ secrets.VSCE_PAT }}"
+        run: |
+          set -euo pipefail
+          test -n "$VSCE_PAT"
+          publisher="$(node -p "require('./package.json').publisher")"
+          npx --yes @vscode/vsce verify-pat "$publisher"
+      - name: Publish Marketplace prerelease
+        env:
+          VSCE_PAT: "${{ secrets.VSCE_PAT }}"
+        run: npx --yes @vscode/vsce publish --pre-release --packagePath "eidos-language-${{ inputs.version }}.vsix"
       - name: Publish GitHub release
         env: { GH_TOKEN: "${{ github.token }}" }
-        run: gh release create "v${{ inputs.version }}" "eidosc-tools-${{ inputs.version }}.vsix" --target "$GITHUB_SHA" --prerelease --title "v${{ inputs.version }}" --notes-file "changelogs/${{ inputs.version }}.md"
+        run: gh release create "v${{ inputs.version }}" "eidos-language-${{ inputs.version }}.vsix" --target "$GITHUB_SHA" --prerelease --title "v${{ inputs.version }}" --notes-file "changelogs/${{ inputs.version }}.md"
