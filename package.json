@@ -2,7 +2,7 @@
   "name": "eidos-language",
   "displayName": "Eidos Language",
   "description": "Language support with semantic diagnostics, completion, definitions, references, and hover for Eidos.",
-  "version": "0.8.0-alpha.1",
+  "version": "0.8.0",
   "publisher": "rdququ",
   "author": "rdququ",
   "license": "MIT",

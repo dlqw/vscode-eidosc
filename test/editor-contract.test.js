@@ -30,7 +30,8 @@ assert(releaseWorkflow.includes("@vscode/vsce verify-pat"), "release workflow mu
 assert(releaseWorkflow.includes("@vscode/vsce publish --pre-release"), "release workflow must publish a Marketplace prerelease");
 assert(releaseWorkflow.includes("eidos-language-${{ inputs.version }}.vsix"), "release workflow must use the Eidos Language artifact name");
 assert(ciWorkflow.includes('-name "*$version*.md"'), "CI must accept target-version changelog fragments whose filenames contain the version");
-assert(vscodeIgnore.includes("!changelogs/0.8.0-alpha.1.md"), "VSIX must include the exact 0.8 release notes");
+assert.strictEqual(manifest.version, "0.8.0", "Marketplace packages require a numeric major.minor.patch version");
+assert(vscodeIgnore.includes("!changelogs/0.8.0.md"), "VSIX must include the exact 0.8 release notes");
 
 const commands = new Set(manifest.contributes.commands.map((command) => command.command));
 for (const expected of [

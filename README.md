@@ -65,6 +65,12 @@ npm test
 npx --yes @vscode/vsce package --pre-release
 ```
 
+The Marketplace accepts numeric `major.minor.patch` extension versions only.
+The `0.8.0` package is published on the Marketplace prerelease channel through
+the `--pre-release` flag; its validated Eidos language baseline remains
+`0.8.0-alpha.1`. A later stable Marketplace release must use a distinct numeric
+version such as `0.8.1`; Marketplace versions cannot be reused across channels.
+
 The extension entry point is `out/extension.js`. Contract tests are under
 `test/` and validate grammar, manifest, command, semantic, and packaging
 surfaces.
