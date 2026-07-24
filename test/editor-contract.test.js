@@ -28,6 +28,8 @@ const themes = manifest.contributes.themes ?? [];
 
 assert(releaseWorkflow.includes("@vscode/vsce verify-pat"), "release workflow must verify Marketplace publisher access");
 assert(releaseWorkflow.includes("@vscode/vsce publish --pre-release"), "release workflow must publish a Marketplace prerelease");
+assert(releaseWorkflow.includes("publish_marketplace:"), "release workflow must support manual Marketplace publication without VSCE_PAT");
+assert(releaseWorkflow.includes("if: ${{ inputs.publish_marketplace }}"), "VSCE_PAT steps must be conditional");
 assert(releaseWorkflow.includes("eidos-language-${{ inputs.version }}.vsix"), "release workflow must use the Eidos Language artifact name");
 assert(ciWorkflow.includes('-name "*$version*.md"'), "CI must accept target-version changelog fragments whose filenames contain the version");
 assert.strictEqual(manifest.version, "0.8.0", "Marketplace packages require a numeric major.minor.patch version");

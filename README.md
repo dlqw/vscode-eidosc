@@ -71,6 +71,10 @@ the `--pre-release` flag; its validated Eidos language baseline remains
 `0.8.0-alpha.1`. A later stable Marketplace release must use a distinct numeric
 version such as `0.8.1`; Marketplace versions cannot be reused across channels.
 
+The release workflow defaults to manual Marketplace upload, so it can package
+and publish the matching GitHub prerelease without `VSCE_PAT`. Set its
+`publish_marketplace` input only when a Marketplace PAT has been configured.
+
 The extension entry point is `out/extension.js`. Contract tests are under
 `test/` and validate grammar, manifest, command, semantic, and packaging
 surfaces.

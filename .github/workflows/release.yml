@@ -7,6 +7,11 @@ on:
         description: Exact extension SemVer
         required: true
         type: string
+      publish_marketplace:
+        description: Publish through VSCE_PAT instead of the manual Marketplace upload flow
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   release:
@@ -28,6 +33,7 @@ jobs:
           npm test
           npx --yes @vscode/vsce package --pre-release --changelog-path "changelogs/$declared.md" -o "eidos-language-$declared.vsix"
       - name: Verify Marketplace publisher access
+        if: ${{ inputs.publish_marketplace }}
         env:
           VSCE_PAT: "${{ secrets.VSCE_PAT }}"
         run: |
@@ -36,6 +42,7 @@ jobs:
           publisher="$(node -p "require('./package.json').publisher")"
           npx --yes @vscode/vsce verify-pat "$publisher"
       - name: Publish Marketplace prerelease
+        if: ${{ inputs.publish_marketplace }}
         env:
           VSCE_PAT: "${{ secrets.VSCE_PAT }}"
         run: npx --yes @vscode/vsce publish --pre-release --packagePath "eidos-language-${{ inputs.version }}.vsix"
