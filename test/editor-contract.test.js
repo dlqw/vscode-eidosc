@@ -23,12 +23,14 @@ const extension = fs.readFileSync(path.join(root, "out", "extension.js"), "utf8"
 const readme = fs.readFileSync(path.join(root, "README.md"), "utf8").replace(/\r\n/g, "\n");
 const releaseWorkflow = fs.readFileSync(path.join(root, ".github", "workflows", "release.yml"), "utf8").replace(/\r\n/g, "\n");
 const ciWorkflow = fs.readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8").replace(/\r\n/g, "\n");
+const vscodeIgnore = fs.readFileSync(path.join(root, ".vscodeignore"), "utf8").replace(/\r\n/g, "\n");
 const themes = manifest.contributes.themes ?? [];
 
 assert(releaseWorkflow.includes("@vscode/vsce verify-pat"), "release workflow must verify Marketplace publisher access");
 assert(releaseWorkflow.includes("@vscode/vsce publish --pre-release"), "release workflow must publish a Marketplace prerelease");
 assert(releaseWorkflow.includes("eidos-language-${{ inputs.version }}.vsix"), "release workflow must use the Eidos Language artifact name");
 assert(ciWorkflow.includes('-name "*$version*.md"'), "CI must accept target-version changelog fragments whose filenames contain the version");
+assert(vscodeIgnore.includes("!changelogs/0.8.0-alpha.1.md"), "VSIX must include the exact 0.8 release notes");
 
 const commands = new Set(manifest.contributes.commands.map((command) => command.command));
 for (const expected of [
