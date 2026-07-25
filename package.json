@@ -1,11 +1,16 @@
 {
-  "name": "eidosc-tools",
-  "displayName": "Eidosc Tools",
+  "name": "eidos-language",
+  "displayName": "Eidos Language",
   "description": "Language support with semantic diagnostics, completion, definitions, references, and hover for Eidos.",
-  "version": "0.7.0-alpha.1",
+  "version": "0.8.0",
   "publisher": "rdququ",
   "author": "rdququ",
   "license": "MIT",
+  "icon": "images/eidos-owl-512.png",
+  "galleryBanner": {
+    "color": "#222421",
+    "theme": "dark"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/dlqw/vscode-eidosc.git"
@@ -51,6 +56,10 @@
         "extensions": [
           ".eidos"
         ],
+        "icon": {
+          "light": "./images/eidos-owl-512.png",
+          "dark": "./images/eidos-owl-512.png"
+        },
         "configuration": "./language-configuration.json"
       },
       {
@@ -61,7 +70,11 @@
         ],
         "filenames": [
           "eidos.toml"
-        ]
+        ],
+        "icon": {
+          "light": "./images/eidos-owl-512.png",
+          "dark": "./images/eidos-owl-512.png"
+        }
       }
     ],
     "grammars": [

@@ -1,4 +1,4 @@
-# Contributing to Eidosc Tools
+# Contributing to Eidos Language
 
 ## Workflow
 
