@@ -312,6 +312,8 @@ assert(extension.includes("\"instance\""), "lexical semantic keywords should inc
 assert(extension.includes("\"given\""), "lexical semantic keywords should include given");
 assert(extension.includes("\"comptime\""), "lexical semantic keywords should include comptime");
 assert(extension.includes('const manifestLanguageVersions = ["0.8.0-alpha.1"]'), "manifest completion should target Eidos 0.8.0-alpha.1");
+assert(extension.includes("noImplicitPrelude"), "manifest completion should expose noImplicitPrelude");
+assert(!extension.includes("noImplicitStdlib"), "manifest completion must not retain removed noImplicitStdlib");
 assert(extension.includes("\"decide\""), "lexical semantic keywords should include decide");
 assert(extension.includes("createStaticEidosCompletions"), "extension should provide static Eidos completions");
 assert(extension.includes("new vscode.SnippetString(\"decide"), "extension should provide decide snippet completion");
@@ -556,6 +558,11 @@ assert(
     extension.includes("useLspDiagnostics()") &&
     extension.includes("lspClient.syncDocument(document)"),
   "semantic diagnostics should be routable through the LSP backend"
+);
+assert(
+  extension.includes("document.positionAt(startOffset)") &&
+    extension.includes("document.positionAt(endOffset)"),
+  "IDE fallback ranges should derive UTF-16 positions from absolute source offsets"
 );
 assert(
   extension.includes("const LSP_FAILURE_COOLDOWN_MS = 10000;") &&

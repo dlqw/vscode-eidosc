@@ -24,7 +24,7 @@ function pathExists(target) {
 
 const manifestLanguageVersions = ["0.8.0-alpha.1"];
 const manifestTargetKindValues = ["executable", "exe", "library", "lib"];
-const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitStdlib"]);
+const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitPrelude"]);
 const manifestSectionKeys = new Map([
   ["package", new Set(["name", "version", "description", "authors", "license", "keywords"])],
   ["language", new Set(["version"])],
@@ -81,10 +81,10 @@ const manifestFieldDocs = {
     zh: "原生链接模式配置。",
     en: "Native linking mode configuration."
   },
-  noImplicitStdlib: {
+  noImplicitPrelude: {
     kind: vscode.CompletionItemKind.Property,
-    zh: "设为 true 时，不自动注入内置 Std 包。",
-    en: "When true, disables the implicit built-in Std package."
+    zh: "设为 true 时，不自动打开编译器随附的 Prelude Core Image。Std 始终是显式 package 依赖。",
+    en: "When true, disables the compiler-provided Prelude Core Image. Std is always an explicit package dependency."
   },
   "package.name": {
     kind: vscode.CompletionItemKind.Property,
@@ -333,7 +333,7 @@ function getManifestCompletionItems(document, position, locale) {
           `"${value}"`
         ));
       }
-    } else if (assignment.key === "noImplicitStdlib") {
+    } else if (assignment.key === "noImplicitPrelude") {
       for (const value of ["true", "false"]) {
         items.push(createManifestCompletionItem(value, vscode.CompletionItemKind.Value, value, value));
       }
@@ -1877,6 +1877,12 @@ function locationForSpan(document, span) {
 function toRange(document, span) {
   if (!hasSpan(span)) {
     return new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+  }
+
+  if (Number.isInteger(span.start) && Number.isInteger(span.length) && span.start >= 0 && span.length >= 0) {
+    const startOffset = Math.min(span.start, document.getText().length);
+    const endOffset = Math.min(startOffset + span.length, document.getText().length);
+    return new vscode.Range(document.positionAt(startOffset), document.positionAt(endOffset));
   }
 
   const startLine = Math.min(Math.max(0, span.startLine), Math.max(0, document.lineCount - 1));
