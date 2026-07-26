@@ -16,6 +16,10 @@ Official language support for Eidos source files and `eidos.toml` projects.
 - Document formatting through `eidosc fmt`.
 - Project build and run commands.
 - Package install, list, and dependency-tree commands.
+- A locked active-project context shared by LSP, build, run, and package
+  commands. Activating an Eidos source under another `eidos.toml` switches the
+  context; browsing Std sources, generated documents, README files, or other
+  non-project files does not redirect commands away from the selected project.
 - Three Eidos-aware color themes.
 
 The extension follows the current Eidos prerelease language surface. Extension,

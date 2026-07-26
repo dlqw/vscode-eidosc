@@ -482,8 +482,15 @@ assert(
   "manifest hover should resolve manifest field metadata"
 );
 assert(
-  extension.includes("const visible = !!document && isProjectAwareDocument(document);"),
-  "status buttons should stay visible for eidos.toml"
+  extension.includes("const visible = !!projectRoot || (!!document && isProjectAwareDocument(document));"),
+  "status buttons should stay visible while an Eidos project is locked or eidos.toml is active"
+);
+assert(
+  extension.includes("class EidosProjectContextController") &&
+    extension.includes("isEidosStandardLibraryRoot(projectRoot)") &&
+    extension.includes("this.projectRoot || filePath || workspace") &&
+    extension.includes("Active Eidos project: ${projectRoot}"),
+  "build, run, and package commands should share a visible locked project context without drifting to Std"
 );
 
 const ideCommandStart = extension.indexOf("function buildIdeCommand(filePath)");
@@ -527,8 +534,11 @@ assert(
     extension.includes("textDocument/semanticTokens/full") &&
     extension.includes("textDocument/codeAction") &&
     extension.includes("textDocument/inlayHint") &&
+    extension.includes("eidos/setProjectContext") &&
+    extension.includes("workspace/didChangeWorkspaceFolders") &&
+    extension.includes("workspaceFolders: (vscode.workspace.workspaceFolders ?? [])") &&
     extension.includes("Content-Length:"),
-  "extension should include a lightweight LSP semantic provider client"
+  "extension should include a project-aware lightweight LSP semantic provider client"
 );
 assert(
   extension.includes("function useLspSemanticBackend()") &&
