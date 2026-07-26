@@ -2735,6 +2735,32 @@ function collectVariableTypeInlayHints(snapshot, document) {
   return hints;
 }
 
+function collectInferredEffectInlayHints(snapshot, document) {
+  const config = vscode.workspace.getConfiguration("eidosc");
+  if (!config.get("inlayHints.enabled", true) || !config.get("inlayHints.inferredEffects", true)) {
+    return [];
+  }
+
+  const hints = [];
+  for (const effect of snapshot?.inferredEffects ?? []) {
+    const span = effect?.insertionSpan;
+    if (!isSpanInDocument(span, document)) {
+      continue;
+    }
+
+    const hint = new vscode.InlayHint(
+      new vscode.Position(span.startLine, span.startCharacter),
+      effect.needText,
+      vscode.InlayHintKind.Type
+    );
+    hint.paddingLeft = true;
+    hint.tooltip = `Inferred effects for '${effect.functionName}'.`;
+    hints.push(hint);
+  }
+
+  return hints;
+}
+
 function findLetDeclarationName(document, span, symbolName) {
   if (!hasSpan(span) || span.startLine < 0 || span.startLine >= document.lineCount) {
     return null;
@@ -3949,13 +3975,24 @@ function activate(context) {
     {
       onDidChangeInlayHints: inlayHintsChanged.event,
       async provideInlayHints(document, range, token) {
+        const inlayConfig = vscode.workspace.getConfiguration("eidosc");
+        if (!inlayConfig.get("inlayHints.enabled", true)) {
+          return [];
+        }
         if (useLspSemanticBackend()) {
           try {
             const hints = await lspClient.inlayHints(document, range);
             if (token?.isCancellationRequested) {
               return [];
             }
-            return (hints ?? []).map(lspInlayHintToVsCode).filter(Boolean);
+            const showVariableTypes = inlayConfig.get("inlayHints.variableTypes", true);
+            const showInferredEffects = inlayConfig.get("inlayHints.inferredEffects", true);
+            return (hints ?? [])
+              .filter((hint) => String(hint?.label ?? "").startsWith(" need ")
+                ? showInferredEffects
+                : showVariableTypes)
+              .map(lspInlayHintToVsCode)
+              .filter(Boolean);
           } catch (error) {
             output.appendLine(`[eidosc][lsp][inlayHint] ${error.message}`);
             lspClient.markFailure(error);
@@ -3967,7 +4004,10 @@ function activate(context) {
           return [];
         }
 
-        const hints = collectVariableTypeInlayHints(snapshot, document);
+        const hints = [
+          ...collectVariableTypeInlayHints(snapshot, document),
+          ...collectInferredEffectInlayHints(snapshot, document)
+        ];
         if (!snapshot.success) {
           const fallbackSnapshot = lastGoodSnapshotFor(document);
           if (fallbackSnapshot && fallbackSnapshot !== snapshot) {
@@ -3977,6 +4017,14 @@ function activate(context) {
               if (!seen.has(key)) {
                 seen.add(key);
                 hint.tooltip = "Stale inferred type from the last successful Eidos snapshot.";
+                hints.push(hint);
+              }
+            }
+            for (const hint of collectInferredEffectInlayHints(fallbackSnapshot, document)) {
+              const key = `${hint.position.line}:${hint.position.character}:${hint.label}`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                hint.tooltip = "Stale inferred effect row from the last successful Eidos snapshot.";
                 hints.push(hint);
               }
             }
