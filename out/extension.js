@@ -916,6 +916,117 @@ function findProjectRoot(startPath) {
   return null;
 }
 
+function isPathInsideRoot(candidate, root) {
+  if (!candidate || !root) {
+    return false;
+  }
+
+  const relative = path.relative(root, candidate);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function isEidosStandardLibraryRoot(projectRoot) {
+  try {
+    const manifest = fs.readFileSync(path.join(projectRoot, "eidos.toml"), "utf8");
+    return /^name\s*=\s*["']std["']\s*$/m.test(manifest) &&
+      /^description\s*=\s*["']Eidos standard library["']\s*$/m.test(manifest);
+  } catch {
+    return false;
+  }
+}
+
+class EidosProjectContextController {
+  constructor() {
+    this.projectRoot = null;
+    this.listeners = new Set();
+  }
+
+  initialize() {
+    if (this.observeDocument(vscode.window.activeTextEditor?.document)) {
+      return;
+    }
+
+    for (const document of vscode.workspace.textDocuments) {
+      if (this.observeDocument(document)) {
+        return;
+      }
+    }
+
+    const candidates = [...new Set((vscode.workspace.workspaceFolders ?? [])
+      .map((folder) => findProjectRoot(folder.uri.fsPath))
+      .filter((projectRoot) => projectRoot && !isEidosStandardLibraryRoot(projectRoot)))];
+    if (candidates.length === 1) {
+      this.setProjectRoot(candidates[0]);
+    }
+  }
+
+  observeDocument(document) {
+    if (!isEidosSourceDocument(document) || document.uri?.scheme !== "file") {
+      return false;
+    }
+
+    const projectRoot = findProjectRoot(document.fileName);
+    if (!projectRoot || isEidosStandardLibraryRoot(projectRoot)) {
+      return false;
+    }
+
+    this.setProjectRoot(projectRoot);
+    return true;
+  }
+
+  reconcileWorkspaceFolders() {
+    if (!this.projectRoot || !pathExists(path.join(this.projectRoot, "eidos.toml"))) {
+      this.setProjectRoot(null);
+      this.initialize();
+      return;
+    }
+
+    const folders = vscode.workspace.workspaceFolders ?? [];
+    if (folders.length > 0 && !folders.some((folder) => isPathInsideRoot(this.projectRoot, folder.uri.fsPath))) {
+      const activeProject = findProjectRoot(vscode.window.activeTextEditor?.document?.fileName);
+      if (activeProject && !isEidosStandardLibraryRoot(activeProject)) {
+        this.setProjectRoot(activeProject);
+        return;
+      }
+
+      const candidates = [...new Set(folders
+        .map((folder) => findProjectRoot(folder.uri.fsPath))
+        .filter((projectRoot) => projectRoot && !isEidosStandardLibraryRoot(projectRoot)))];
+      this.setProjectRoot(candidates.length === 1 ? candidates[0] : null);
+    }
+  }
+
+  setProjectRoot(projectRoot) {
+    const normalized = projectRoot ? path.resolve(projectRoot) : null;
+    if (this.projectRoot === normalized) {
+      return false;
+    }
+
+    this.projectRoot = normalized;
+    for (const listener of this.listeners) {
+      listener(normalized);
+    }
+    return true;
+  }
+
+  getCommandTarget(document) {
+    this.observeDocument(document);
+    const filePath = document?.uri?.scheme === "file" ? document.fileName : undefined;
+    const workspace = inferExecutionRoot(this.projectRoot || filePath);
+    return {
+      filePath,
+      workspace,
+      projectRoot: this.projectRoot,
+      source: this.projectRoot || filePath || workspace
+    };
+  }
+
+  onDidChange(listener) {
+    this.listeners.add(listener);
+    return { dispose: () => this.listeners.delete(listener) };
+  }
+}
+
 function getActiveEidosDocument() {
   const editor = vscode.window.activeTextEditor;
   const document = editor?.document;
@@ -928,18 +1039,6 @@ function getActiveEidosDocument() {
   }
 
   return null;
-}
-
-function getCommandTarget(document) {
-  const filePath = document?.uri?.scheme === "file" ? document.fileName : undefined;
-  const workspace = inferExecutionRoot(filePath);
-  const projectRoot = findProjectRoot(filePath) || findProjectRoot(workspace);
-  return {
-    filePath,
-    workspace,
-    projectRoot,
-    source: projectRoot || filePath || workspace
-  };
 }
 
 function buildCliCommand(filePath, eidosArgs, cwdOverride) {
@@ -1126,9 +1225,10 @@ function parseJsonFromOutput(output) {
 }
 
 class EidosLspClient {
-  constructor(output, diagnostics) {
+  constructor(output, diagnostics, projectContext) {
     this.output = output;
     this.diagnostics = diagnostics;
+    this.projectContext = projectContext;
     this.child = null;
     this.nextId = 1;
     this.pending = new Map();
@@ -1167,7 +1267,9 @@ class EidosLspClient {
   }
 
   async startCore(document) {
-    const built = buildCliCommand(document?.fileName, ["lsp"]);
+    this.projectContext.observeDocument(document);
+    const projectRoot = this.projectContext.projectRoot;
+    const built = buildCliCommand(document?.fileName, ["lsp"], projectRoot || undefined);
     if (built.error) {
       this.output.appendLine(`[eidosc][lsp] ${built.error}`);
       this.markFailure(new Error(built.error));
@@ -1202,12 +1304,19 @@ class EidosLspClient {
     try {
       await this.request("initialize", {
         processId: process.pid,
-        rootUri: document?.uri?.scheme === "file" ? vscode.Uri.file(inferExecutionRoot(document.fileName)).toString() : null,
-        capabilities: {}
+        rootUri: vscode.Uri.file(projectRoot || inferExecutionRoot(document?.fileName)).toString(),
+        workspaceFolders: (vscode.workspace.workspaceFolders ?? []).map((folder) => ({
+          uri: folder.uri.toString(),
+          name: folder.name
+        })),
+        capabilities: {
+          workspace: { workspaceFolders: true }
+        }
       });
       this.notify("initialized", {});
       this.initialized = true;
       this.lastFailure = null;
+      this.setProjectContext(this.projectContext.projectRoot);
       for (const openDocument of vscode.workspace.textDocuments) {
         if (isEidosSourceDocument(openDocument)) {
           this.didOpen(openDocument);
@@ -1245,6 +1354,27 @@ class EidosLspClient {
     this.child = null;
     this.initialized = false;
     this.openDocuments.clear();
+  }
+
+  setProjectContext(projectRoot) {
+    if (this.child && this.initialized) {
+      this.notify("eidos/setProjectContext", {
+        projectUri: projectRoot ? vscode.Uri.file(projectRoot).toString() : null
+      });
+    }
+  }
+
+  didChangeWorkspaceFolders(event) {
+    if (!this.child || !this.initialized) {
+      return;
+    }
+
+    this.notify("workspace/didChangeWorkspaceFolders", {
+      event: {
+        added: event.added.map((folder) => ({ uri: folder.uri.toString(), name: folder.name })),
+        removed: event.removed.map((folder) => ({ uri: folder.uri.toString(), name: folder.name }))
+      }
+    });
   }
 
   dispose() {
@@ -3097,7 +3227,9 @@ function activate(context) {
   const semanticJobs = new Map();
   const warnedDocs = new Set();
   const semanticFailures = new Set();
-  const lspClient = new EidosLspClient(output, diagnostics);
+  const projectContext = new EidosProjectContextController();
+  projectContext.initialize();
+  const lspClient = new EidosLspClient(output, diagnostics, projectContext);
 
   function findGeneratedDocumentInSnapshots(uri) {
     for (const state of snapshots.values()) {
@@ -3483,7 +3615,7 @@ function activate(context) {
 
   function buildCommandForActiveTarget(command) {
     const document = getActiveEidosDocument();
-    const target = getCommandTarget(document);
+    const target = projectContext.getCommandTarget(document);
     const args = buildProjectArgs(command, target);
     const cwd = target.projectRoot || target.workspace;
     return buildCliCommand(target.filePath, args, cwd);
@@ -3491,7 +3623,7 @@ function activate(context) {
 
   function buildPackageCommand(subcommand) {
     const document = getActiveEidosDocument();
-    const target = getCommandTarget(document);
+    const target = projectContext.getCommandTarget(document);
     const cwd = target.projectRoot || target.workspace;
     return buildCliCommand(target.filePath, buildPackageArgs(subcommand), cwd);
   }
@@ -4046,23 +4178,48 @@ function activate(context) {
   runStatus.command = "eidosc.runProject";
   runStatus.tooltip = "Run the active Eidos executable target";
 
+  const projectStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 81);
+  projectStatus.command = "eidosc.buildProject";
+
   function updateStatusButtons(editor) {
     const document = editor?.document;
-    const visible = !!document && isProjectAwareDocument(document);
+    const projectRoot = projectContext.projectRoot;
+    const visible = !!projectRoot || (!!document && isProjectAwareDocument(document));
     if (visible) {
+      if (projectRoot) {
+        const projectName = path.basename(projectRoot);
+        projectStatus.text = `$(project) Eidos: ${projectName}`;
+        projectStatus.tooltip = `Active Eidos project: ${projectRoot}`;
+        projectStatus.show();
+        buildStatus.tooltip = `Build the locked Eidos project: ${projectRoot}`;
+        runStatus.tooltip = `Run the locked Eidos project: ${projectRoot}`;
+      } else {
+        projectStatus.hide();
+        buildStatus.tooltip = "Build the active Eidos project or file";
+        runStatus.tooltip = "Run the active Eidos executable target";
+      }
       buildStatus.show();
       runStatus.show();
     } else {
+      projectStatus.hide();
       buildStatus.hide();
       runStatus.hide();
     }
   }
 
-  const onOpen = vscode.workspace.onDidOpenTextDocument((document) => scheduleSemanticDiagnostics(document));
+  const onProjectContext = projectContext.onDidChange((projectRoot) => {
+    lspClient.setProjectContext(projectRoot);
+    updateStatusButtons(vscode.window.activeTextEditor);
+  });
+  const onOpen = vscode.workspace.onDidOpenTextDocument((document) => {
+    projectContext.observeDocument(document);
+    scheduleSemanticDiagnostics(document);
+  });
   const onChange = vscode.workspace.onDidChangeTextDocument((event) => scheduleSemanticDiagnostics(event.document));
   const onSave = vscode.workspace.onDidSaveTextDocument((document) => scheduleSemanticDiagnostics(document));
   const onActiveEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
     if (editor?.document) {
+      projectContext.observeDocument(editor.document);
       scheduleSemanticDiagnostics(editor.document);
     }
     updateStatusButtons(editor);
@@ -4096,6 +4253,11 @@ function activate(context) {
     lspClient.didClose(document);
     diagnostics.delete(document.uri);
   });
+  const onWorkspaceFolders = vscode.workspace.onDidChangeWorkspaceFolders((event) => {
+    projectContext.reconcileWorkspaceFolders();
+    lspClient.didChangeWorkspaceFolders(event);
+    updateStatusButtons(vscode.window.activeTextEditor);
+  });
 
   vscode.workspace.textDocuments.forEach((document) => scheduleSemanticDiagnostics(document));
   updateStatusButtons(vscode.window.activeTextEditor);
@@ -4122,6 +4284,7 @@ function activate(context) {
     inlayHintsProvider,
     inlayHintsChanged,
     hoverProvider,
+    projectStatus,
     buildStatus,
     runStatus,
     onOpen,
@@ -4129,7 +4292,9 @@ function activate(context) {
     onSave,
     onActiveEditor,
     onConfig,
-    onClose
+    onClose,
+    onProjectContext,
+    onWorkspaceFolders
   );
 }
 
