@@ -308,6 +308,11 @@
           "default": true,
           "description": "Show inferred type hints for let/let mut declarations without explicit type annotations."
         },
+        "eidosc.inlayHints.inferredEffects": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show virtual need clauses for functions whose effects are inferred by eidosc."
+        },
         "eidosc.semanticDebounceMs": {
           "type": "number",
           "default": 180,

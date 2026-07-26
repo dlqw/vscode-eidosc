@@ -53,6 +53,7 @@ for (const expected of [
   "eidosc.semanticHighlighting",
   "eidosc.inlayHints.enabled",
   "eidosc.inlayHints.variableTypes",
+  "eidosc.inlayHints.inferredEffects",
   "eidosc.package.targetName",
   "eidosc.run.args"
 ]) {
@@ -540,6 +541,11 @@ assert(
     extension.includes("lspClient.codeActions(document, targetRange, context)") &&
     extension.includes("lspClient.inlayHints(document, range)"),
   "interactive providers should be routable through the LSP backend"
+);
+assert(
+  extension.includes("function collectInferredEffectInlayHints") &&
+    extension.includes('inlayHints.inferredEffects'),
+  "extension should render and independently configure inferred effect hints"
 );
 assert(
   extension.includes("registerDocumentSymbolProvider") &&
