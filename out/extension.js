@@ -22,7 +22,7 @@ function pathExists(target) {
   }
 }
 
-const manifestLanguageVersions = ["0.8.0-alpha.1"];
+const manifestLanguageVersions = ["0.9.0-alpha.1"];
 const manifestTargetKindValues = ["executable", "exe", "library", "lib"];
 const manifestTopLevelKeys = new Set(["manifestSchema", "sourceRoots", "importRoots", "defaultTarget", "nativeLinkMode", "noImplicitPrelude"]);
 const manifestSectionKeys = new Map([
@@ -2614,7 +2614,18 @@ function createStaticEidosCompletions(locale, range) {
     decide.range = range;
   }
 
-  return [decide];
+  const binders = new vscode.CompletionItem("curried binders", vscode.CompletionItemKind.Snippet);
+  binders.detail = "curried binder list";
+  binders.documentation = new vscode.MarkdownString(locale === "zh-CN"
+    ? "插入与右结合箭头链等价的柯里化 binder list；带括号的 `(a, b)` 仍表示一个 tuple 参数。"
+    : "Inserts a curried binder list equivalent to a right-associated arrow chain; parenthesized `(a, b)` remains one tuple parameter.");
+  binders.insertText = new vscode.SnippetString("${1:left}, ${2:right} => ${3:body}");
+  binders.sortText = "0_curried_binders";
+  if (range) {
+    binders.range = range;
+  }
+
+  return [decide, binders];
 }
 
 function semanticTokenTypeForSymbol(symbol, occurrence) {
