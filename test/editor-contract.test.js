@@ -15,8 +15,8 @@ for (const language of manifest.contributes.languages) {
   assert.strictEqual(language.icon.dark, "./images/eidos-owl-512.png", `${language.id} dark icon must use the Eidos owl`);
 }
 assert.deepStrictEqual(compatibility.manifestSchemas, [3]);
-assert.strictEqual(compatibility.language, ">=0.8.0-alpha.1 <0.9.0");
-assert.strictEqual(compatibility.eidosc, ">=0.5.0-alpha.1 <0.6.0");
+assert.strictEqual(compatibility.language, ">=0.9.0-alpha.1 <0.10.0");
+assert.strictEqual(compatibility.eidosc, ">=0.8.0-alpha.1 <0.9.0");
 const grammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos.tmLanguage.json"), "utf8"));
 const manifestGrammar = JSON.parse(fs.readFileSync(path.join(root, "syntaxes", "eidos-manifest.tmLanguage.json"), "utf8"));
 const extension = fs.readFileSync(path.join(root, "out", "extension.js"), "utf8").replace(/\r\n/g, "\n");
@@ -325,12 +325,13 @@ assert(extension.includes("\"effect\""), "lexical semantic keywords should inclu
 assert(extension.includes("\"instance\""), "lexical semantic keywords should include instance");
 assert(extension.includes("\"given\""), "lexical semantic keywords should include given");
 assert(extension.includes("\"comptime\""), "lexical semantic keywords should include comptime");
-assert(extension.includes('const manifestLanguageVersions = ["0.8.0-alpha.1"]'), "manifest completion should target Eidos 0.8.0-alpha.1");
+assert(extension.includes('const manifestLanguageVersions = ["0.9.0-alpha.1"]'), "manifest completion should target Eidos 0.9.0-alpha.1");
 assert(extension.includes("noImplicitPrelude"), "manifest completion should expose noImplicitPrelude");
 assert(!extension.includes("noImplicitStdlib"), "manifest completion must not retain removed noImplicitStdlib");
 assert(extension.includes("\"decide\""), "lexical semantic keywords should include decide");
 assert(extension.includes("createStaticEidosCompletions"), "extension should provide static Eidos completions");
 assert(extension.includes("new vscode.SnippetString(\"decide"), "extension should provide decide snippet completion");
+assert(extension.includes('new vscode.SnippetString("${1:left}, ${2:right} => ${3:body}")'), "extension should provide a curried binder-list snippet");
 assert(extension.includes("\"??\""), "lexical semantic operators should include Option fallback");
 assert(extension.includes("\"+:\"") && extension.includes("\":+\""), "lexical semantic operators should include Seq cons operators");
 assert(extension.includes("let\\??)(?:\\s+mut)?"), "inlay hint declaration matching should include let and let?");

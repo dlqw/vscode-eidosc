@@ -7,6 +7,7 @@ Official language support for Eidos source files and `eidos.toml` projects.
 ## Features
 
 - TextMate syntax highlighting for Eidos source and project manifests, including `_0`, `_1`, ... payload placeholders in `then` / `else` selection arms.
+- Eidos 0.9 curried binder-list snippets such as `left, right => body`; parenthesized `(left, right) => body` remains a one-tuple-parameter pattern.
 - Live compiler diagnostics.
 - Completion, hover, go to definition, find references, semantic tokens, and
   inlay hints through the Eidosc language service.
@@ -71,9 +72,9 @@ npx --yes @vscode/vsce package --pre-release
 ```
 
 The Marketplace accepts numeric `major.minor.patch` extension versions only.
-The `0.8.0` package is published on the Marketplace prerelease channel through
+The current numeric package is published on the Marketplace prerelease channel through
 the `--pre-release` flag; its validated Eidos language baseline remains
-`0.8.0-alpha.1`. A later stable Marketplace release must use a distinct numeric
+`0.9.0-alpha.1`. A later stable Marketplace release must use a distinct numeric
 version such as `0.8.1`; Marketplace versions cannot be reused across channels.
 
 The release workflow defaults to manual Marketplace upload, so it can package
@@ -95,7 +96,7 @@ security issues according to [SECURITY.md](SECURITY.md).
 Eidos 0.5 的 `comptime N: Int` 值级 const generic 由 TextMate 提供词法回退，
 精确的 type/value/effect-row 参数域由 Eidosc LSP 语义输出负责。用户 derive 生成的声明
 可跳转到稳定的只读 `eidos-generated://` 虚拟文档，内容和 origin 由 Eidosc LSP 提供。
-Eidos 0.8 的 `then` / `else` selection payload 占位符 `_0`、`_1` 等具有 TextMate 词法高亮；其精确类型与作用域由 Eidosc LSP 提供。
+Eidos 0.8 的 `then` / `else` selection payload 占位符 `_0`、`_1` 等具有 TextMate 词法高亮；其精确类型与作用域由 Eidosc LSP 提供。Eidos 0.9 增加 `left, right => body` 柯里化 binder-list snippet；`(left, right) => body` 仍表示单个 tuple 参数。
 
 ## License
 
