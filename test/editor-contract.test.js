@@ -51,6 +51,7 @@ for (const expected of [
 for (const expected of [
   "eidosc.semanticBackend",
   "eidosc.semanticHighlighting",
+  "eidosc.format.buildFromSource",
   "eidosc.inlayHints.enabled",
   "eidosc.inlayHints.variableTypes",
   "eidosc.inlayHints.inferredEffects",
@@ -62,6 +63,18 @@ for (const expected of [
     `missing configuration: ${expected}`
   );
 }
+
+assert.strictEqual(
+  manifest.contributes.configuration.properties["eidosc.format.buildFromSource"]?.default,
+  true,
+  "source-backed formatting should rebuild the current formatter by default"
+);
+assert(
+  extension.includes('const DOTNET_FORMAT_OUTPUT_PATH = "tmp/vscode-format/bin/";') &&
+    extension.includes('args: ["build", projectPath, outputPathArgument, "--nologo"]') &&
+    extension.includes('...(buildFromSource ? ["--no-build", outputPathArgument]'),
+  "source-backed formatting must build and run from the isolated formatter output"
+);
 
 assert(
   manifest.contributes.languages?.some((language) => language.id === "eidos-manifest" && language.filenames?.includes("eidos.toml")),
