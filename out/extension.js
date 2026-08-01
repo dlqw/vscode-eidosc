@@ -7,6 +7,7 @@ const fs = require("fs");
 let extensionRoot = null;
 const COMMAND_PROBE_TTL_MS = 30000;
 const LSP_FAILURE_COOLDOWN_MS = 10000;
+const DOTNET_FORMAT_OUTPUT_PATH = "tmp/vscode-format/bin/";
 const commandProbeCache = new Map();
 const dotnetProjectCache = new Map();
 
@@ -819,6 +820,7 @@ function buildFormatCommand(filePath, formattingOptions) {
   const dotnetPath = config.get("dotnetPath", "dotnet");
   const workspace = inferExecutionRoot(filePath);
   const dotnetNoBuild = config.get("dotnetNoBuild", true);
+  const buildFromSource = config.get("format.buildFromSource", true);
   const indentSize = Math.max(1, Number(config.get("format.indentSize", formattingOptions?.tabSize ?? 4)) || 4);
   const maxLineLength = Math.max(40, Number(config.get("format.maxLineLength", 100)) || 100);
   const finalNewline = config.get("format.finalNewline", true);
@@ -851,10 +853,25 @@ function buildFormatCommand(filePath, formattingOptions) {
       return null;
     }
 
+    const outputPathArgument = `-p:BaseOutputPath=${DOTNET_FORMAT_OUTPUT_PATH}`;
     return {
       command: dotnetPath,
-      args: ["run", "--project", projectPath, ...(dotnetNoBuild ? ["--no-build"] : []), "--", ...formatArgs],
-      cwd: workspace
+      args: [
+        "run",
+        "--project",
+        projectPath,
+        ...(buildFromSource ? ["--no-build", outputPathArgument] : dotnetNoBuild ? ["--no-build"] : []),
+        "--",
+        ...formatArgs
+      ],
+      cwd: workspace,
+      prepare: buildFromSource
+        ? {
+            command: dotnetPath,
+            args: ["build", projectPath, outputPathArgument, "--nologo"],
+            cwd: workspace
+          }
+        : null
     };
   };
 
@@ -3763,7 +3780,18 @@ function activate(context) {
           return [];
         }
 
-        const { command, args, cwd } = built;
+        const { command, args, cwd, prepare } = built;
+        if (prepare) {
+          const prepared = await spawnProcess(prepare.command, prepare.args, prepare.cwd);
+          if (prepared.error || (prepared.code ?? 1) !== 0) {
+            const message = prepared.error?.message || prepared.stderr?.trim() || prepared.stdout?.trim() || `dotnet build failed with exit ${prepared.code}`;
+            const localized = localizeText(message, locale);
+            output.appendLine(`[eidosc][fmt] ${localized}`);
+            vscode.window.showErrorMessage(locale === "zh-CN" ? `Eidosc 格式化后端构建失败：${localized}` : `Eidosc formatter backend build failed: ${localized}`);
+            return [];
+          }
+        }
+
         const result = await spawnProcess(command, args, cwd, document.getText());
         if (result.error) {
           const localized = localizeText(result.error.message, locale);

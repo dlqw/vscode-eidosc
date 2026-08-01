@@ -42,6 +42,7 @@ configured native command, a bundled command when present, or a discoverable
 | `eidosc.cliPath` | Native `eidosc` executable or command name. |
 | `eidosc.dotnetPath` | .NET host used by source mode. |
 | `eidosc.dotnetProject` | Path to `Eidosc.Cli.csproj` or its project directory. |
+| `eidosc.format.buildFromSource` | Build a discovered source formatter in an isolated output directory before formatting. |
 | `eidosc.semanticBackend` | Select the long-lived `lsp` backend or snapshot-based `ide` backend. |
 | `eidosc.semanticEnabled` | Enable compiler-backed language intelligence. |
 | `eidosc.semanticHighlighting` | Enable semantic token highlighting. |

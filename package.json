@@ -359,6 +359,11 @@
           "default": true,
           "description": "Enable Eidos document formatting provider."
         },
+        "eidosc.format.buildFromSource": {
+          "type": "boolean",
+          "default": true,
+          "description": "Build a discovered Eidosc.Cli source backend into an isolated output directory before formatting, so formatter changes are not hidden by stale --no-build binaries or a running LSP process."
+        },
         "eidosc.format.indentSize": {
           "type": "number",
           "default": 4,
