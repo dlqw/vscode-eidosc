@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Exact extension SemVer
+        description: Exact Eidos release SemVer (Marketplace uses its numeric mapping)
         required: true
         type: string
       publish_marketplace:
@@ -27,11 +27,14 @@ jobs:
           set -euo pipefail
           git fetch origin main
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main
-          declared="$(node -p "require('./package.json').version")"
+          node test/release-fast-lane.js "$GITHUB_SHA" | tee release-proof.json
+          declared="$(node -p "require('./compatibility.json').version")"
           test "$declared" = "${{ inputs.version }}"
-          test -f "changelogs/$declared.md"
+          marketplace="$(node -p "require('./package.json').version")"
+          test "$marketplace" = "0.9.0"
+          test -f "changelogs/${{ inputs.version }}.md"
           npm test
-          npx --yes @vscode/vsce package --pre-release --changelog-path "changelogs/$declared.md" -o "eidos-language-$declared.vsix"
+          npx --yes @vscode/vsce package --pre-release --changelog-path "changelogs/${{ inputs.version }}.md" -o "eidos-language-${{ inputs.version }}.vsix"
       - name: Verify Marketplace publisher access
         if: ${{ inputs.publish_marketplace }}
         env:
