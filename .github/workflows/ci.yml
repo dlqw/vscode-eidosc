@@ -18,7 +18,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          version="$(node -p "require('./package.json').version")"
+          version="$(node -p "require('./compatibility.json').version")"
           if [[ -f "changelogs/$version.md" ]]; then
             exit 0
           fi
