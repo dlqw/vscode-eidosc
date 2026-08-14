@@ -223,6 +223,15 @@
           }
         },
         {
+          "name": "meta.module-level-mutable.definition.eidos",
+          "match": "\\b(mut)\\s+([a-z_][A-Za-z0-9_]*)\\s*(?::\\s*[^=;\\n]+)?\\s*(:=)",
+          "captures": {
+            "1": { "name": "storage.modifier.mut.eidos" },
+            "2": { "name": "entity.name.variable.mutable.eidos" },
+            "3": { "name": "keyword.operator.assignment.eidos" }
+          }
+        },
+        {
           "name": "meta.function.definition.eidos",
           "match": "\\b(func|fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
