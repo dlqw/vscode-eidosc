@@ -246,13 +246,22 @@ for (const expected of [
   "meta.instance.definition.name-first.eidos",
   "meta.import.binding.name-first.eidos",
   "meta.comptime.definition.name-first.eidos",
-  "meta.value.definition.name-first.eidos"
+  "meta.value.definition.name-first.eidos",
+  "meta.module-level-mutable.definition.eidos"
 ]) {
   assert(
     grammar.repository.declarations.patterns.some((pattern) => pattern.name === expected),
     `grammar should scope ${expected}`
   );
 }
+assert(
+  grammar.repository.declarations.patterns.some((pattern) =>
+    pattern.name === "meta.module-level-mutable.definition.eidos" &&
+    pattern.match.includes("mut") &&
+    pattern.match.includes(":=") &&
+    JSON.stringify(pattern).includes("entity.name.variable.mutable.eidos")),
+  "grammar should scope module-level mutable bindings with assignment operator"
+);
 assert(
   grammar.repository.declarations.patterns.some((pattern) =>
     pattern.name === "meta.generic.parameter.value.eidos" &&
